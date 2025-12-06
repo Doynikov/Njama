@@ -1,0 +1,45 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <canvas id="canvas" width="400" height="250"></canvas>
+        <script>
+window.onload = function () {
+  var width = 600,
+      height = 600,
+      canvas = document.getElementsByTagName('canvas')[0],
+      context = canvas.getContext('2d');
+  canvas.width = width;
+  canvas.height = height;
+  var image = new Image();
+  image.src = 'https://cdn.sstatic.net/Sites/stackoverflow/img/apple-touch-icon.png?v=c78bd457575a';
+  function draw(x, y, degrees) {
+    /*
+    context.translate(x + image.width / 2, y + image.height / 2);
+    context.rotate(degrees * Math.PI / 180);
+    context.drawImage(image, 0, 0, image.width, image.height,
+        -image.width / 2, -image.height / 2, image.width, image.height);
+    //context.rotate(-degrees * Math.PI / 180);
+    //context.translate(-x - image.width / 2, -y - image.height / 2);
+    */
+   // 1,0,0,-1,0,canvas.height
+   
+    context.setTransform(0, -1, 0, 1, 0, image.height);
+    context.drawImage(image, 0, 0);
+  }
+  image.onload = function () {
+    // var degrees = 180;
+    function loop(degrees) {
+      // degrees = (degrees + 1) % 360;
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      draw(image,0, 0, degrees);
+      //window.requestAnimationFrame(loop);
+    };
+    //window.requestAnimationFrame(loop);
+    loop(-180);
+  };
+};
+        </script>
+    </body>
+</html>
