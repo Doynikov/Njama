@@ -1,29 +1,57 @@
 <html>
     <head>
-
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <style>
+        body {
+          background-color: black;
+        }
+        #canvas-wrapper {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          width: 100%;
+          align-items: center;
+          justify-content: center;
+        }
+        #canvas {
+          background-image: url('assets/images/bg.jpg');
+          background-size: contain;
+        }
+      </style>
     </head>
     <body>
-        <canvas id="canvas" width="400" height="250"></canvas>
-        <script>
+      <div id="canvas-wrapper">
+        <canvas id="canvas" width="1920" height="1080"></canvas>
+      </div>
+      <script>
+        class Game{
+          name;
+          age;
+          constructor(pName, pAge){
+            this.name = pName;
+            this.age = pAge;
+          }
+          print(){
+            console.log(`Name: ${this.name}  Age: ${this.age}`);
+          }
+        }
+          /*
 window.onload = function () {
-  var width = 1055,
-      height = 600,
+  var width = '1920',
+      height = '1080',
       canvas = document.getElementsByTagName('canvas')[0],
       context = canvas.getContext('2d');
   canvas.width = width;
   canvas.height = height;
   var image = new Image();
-  image.src = 'https://cdn.sstatic.net/Sites/stackoverflow/img/apple-touch-icon.png?v=c78bd457575a';
+  image.src = 'assets/intro.png';
   function draw(x, y, degrees) {
-    /*
     context.translate(x + image.width / 2, y + image.height / 2);
     context.rotate(degrees * Math.PI / 180);
-    context.drawImage(image, 0, 0, image.width, image.height,
-        -image.width / 2, -image.height / 2, image.width, image.height);
+    context.drawImage(image, 0, 0, image.width, image.height, -image.width / 2, -image.height / 2, image.width, image.height);
     //context.rotate(-degrees * Math.PI / 180);
     //context.translate(-x - image.width / 2, -y - image.height / 2);
-    */
-   // 1,0,0,-1,0,canvas.height
+    // 1,0,0,-1,0,canvas.height
    
     context.setTransform(0, -1, 0, 1, 0, image.height);
     context.drawImage(image, 0, 0);
@@ -40,6 +68,47 @@ window.onload = function () {
     loop(-180);
   };
 };
+          */
+          var width = '1920';
+          var height = '1080';
+          var k = 1080/1920;
+          var canvas = null;
+          var context = null;
+          var image = new Image();
+          var intro = new Image();
+
+          const update = ()=> {
+
+          }
+          function resize() {
+            const h=window.innerHeight;
+            const w=window.innerWidth;
+            let currentW = w;
+            let currentH = w*k;
+            if(currentH > h) {
+              currentH = h;
+              currentW = h/k;
+            }
+            //console.log(k, w/h, currentW, currentH, 'resize');
+            canvas.width = currentW;
+            canvas.height = currentH;
+            canvas.style.width = currentW+'px';
+            canvas.style.height = currentH+'px';
+            context.clearRect(0, 0, currentW, currentH);
+            console.log(currentW, intro.width, (currentW-intro.width)/2, (currentH-intro.height)/2)
+            // context.translate(300, 300);
+            context.drawImage(intro, (currentW-intro.width)/2,  (currentH-intro.height)/2);
+          }
+          
+          window.onload = function() {
+            canvas = document.getElementsByTagName('canvas')[0];
+            context = canvas.getContext('2d');
+            image.src = 'assets/images/bg.jpg';
+            intro.src = 'assets/images/intro.png';
+            
+            window.onresize = resize;
+            window.requestAnimationFrame(resize);
+          }
         </script>
     </body>
 
