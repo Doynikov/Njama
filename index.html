@@ -18,8 +18,42 @@
           background-size: contain;
         }
       </style>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <style>
+        body {
+          background-color: black;
+        }
+        #canvas-wrapper {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          width: 100%;
+          align-items: center;
+          justify-content: center;
+        }
+        #canvas {
+          background-image: url('assets/images/bg.jpg');
+          background-size: contain;
+        }
+      </style>
     </head>
     <body>
+      <div id="canvas-wrapper">
+        <canvas id="canvas" width="1920" height="1080"></canvas>
+      </div>
+      <script>
+        class Game{
+          name;
+          age;
+          constructor(pName, pAge){
+            this.name = pName;
+            this.age = pAge;
+          }
+          print(){
+            console.log(`Name: ${this.name}  Age: ${this.age}`);
+          }
+        }
+          /*
       <div id="canvas-wrapper">
         <canvas id="canvas" width="1920" height="1080"></canvas>
       </div>
@@ -39,6 +73,8 @@
 window.onload = function () {
   var width = '1920',
       height = '1080',
+  var width = '1920',
+      height = '1080',
       canvas = document.getElementsByTagName('canvas')[0],
       context = canvas.getContext('2d');
   canvas.width = width;
@@ -49,8 +85,10 @@ window.onload = function () {
     context.translate(x + image.width / 2, y + image.height / 2);
     context.rotate(degrees * Math.PI / 180);
     context.drawImage(image, 0, 0, image.width, image.height, -image.width / 2, -image.height / 2, image.width, image.height);
+    context.drawImage(image, 0, 0, image.width, image.height, -image.width / 2, -image.height / 2, image.width, image.height);
     //context.rotate(-degrees * Math.PI / 180);
     //context.translate(-x - image.width / 2, -y - image.height / 2);
+    // 1,0,0,-1,0,canvas.height
     // 1,0,0,-1,0,canvas.height
    
     context.setTransform(0, -1, 0, 1, 0, image.height);
