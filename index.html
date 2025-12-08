@@ -70,26 +70,39 @@
           { name: 'rat_eat_snd', src: 'assets/sounds/rat_eat.mp3' },
           { name: 'rat_cry_snd', src: 'assets/sounds/rat_cry.mp3' },
         ]
-        this.soundsStillLoading = this.sounds.length;
+        // this.soundsStillLoading = this.sounds.length;
       };
 
-      loadImages() {
+      loadImages = () => {
         for (var i = 0; i < this.sprites.length; i++) {
+
           this.sprites[i].sprite = new Image();
           this.sprites[i].sprite.src = this.sprites[i].src;
-          this.sprites[i].sprite.onload = function () {
+          this.sprites[i].sprite.onload = () => {
             this.spritesStillLoading--;
           };
         }
       }
-      loadsounds() {
+
+      loadsounds = () => {
         for (var i = 0; i < this.sounds.length; i++) {
           this.sounds[i].sound = new Audio();
           this.sounds[i].sound.src = this.sounds[i].src;
         }
       }
+
+      assetLoadingLoop = () => {
+        if (game.spritesStillLoading > 0) {
+          console.log(this.spritesStillLoading, 'loop')
+          setTimeout(this.assetLoadingLoop, 1);
+        }
+        else {
+          this.start();
+        }
+    
+      };
+
       start() {
-        //if(this.spritesStillLoading > 0)window.requestAnimationFrame(this.start());
         console.log(this.spritesStillLoading)
       }
 
@@ -133,10 +146,7 @@
     */
 
     window.onload = function () {
-      
-    
-  
-      game.start();
+      game.assetLoadingLoop();
       
       /*
       canvas = document.getElementsByTagName('canvas')[0];
@@ -152,6 +162,8 @@
     game = new Game;
     game.loadImages();
     game.loadsounds();
+    // game.assetLoadingLoop();
+    game.start();
   </script>
 </body>
 </html>
