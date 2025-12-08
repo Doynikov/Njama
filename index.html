@@ -1,134 +1,157 @@
 <html>
-    <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <style>
-        body {
-          background-color: black;
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <style>
+    body {
+      background-color: black;
+    }
+
+    #canvas-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #canvas {
+      background-image: url('assets/images/bg.jpg');
+      background-size: contain;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="canvas-wrapper">
+    <canvas id="canvas" width="1920" height="1080"></canvas>
+  </div>
+  <script>
+
+
+
+    class Game {
+      constructor() {
+        this.sprites = [
+          { name: 'nam_bang', src: 'assets/images/nyama_bang.png' },
+          { name: 'nam_die', src: 'assets/images/nyama_die.png' },
+          { name: 'nam_normal', src: 'assets/images/nyama_norm.png' },
+          { name: 'nam_red', src: 'assets/images/nyama_red.png' },
+          { name: 'nam_die_dn ', src: 'assets/images/nyama_die_dn.png' },
+          { name: 'bang_image', src: 'assets/images/bang.png' },
+          { name: 'nam_njam', src: 'assets/images/nyama_njam.png' },
+          { name: 'nam_press', src: 'assets/images/nyama_press.png' },
+          { name: 'nam_jump', src: 'assets/images/nyama_fly.png' },
+          { name: 'gift_hide', src: 'assets/images/gift_hide.png' },
+          { name: 'nam_wall_left', src: 'assets/images/nyama_wall_left.png' },
+          { name: 'nam_wall_right', src: 'assets/images/nyama_wall_right.png' },
+          { name: 'nam_die_up_star', src: 'assets/images/nyama_die_up_star.png' },
+          { name: 'nam_down_star', src: 'assets/images/nyama_down_star.png' },
+          { name: 'intro_image', src: 'assets/images/intro.png' },
+          { name: 'rat_image_l', src: 'assets/images/rat_big_l.png' },
+          { name: 'rat_image_r', src: 'assets/images/rat_big_r.png' },
+          { name: 'rat_die', src: 'assets/images/rat_die.png' },
+          { name: 'rat_break', src: 'assets/images/rat_break.png' },
+          { name: 'nam_blood_1', src: 'assets/images/nyama_blood_1.png' },
+          { name: 'nam_blood_2', src: 'assets/images/nyama_blood_2.png' },
+        ];
+
+        this.spritesStillLoading = this.sprites.length;
+
+        this.sounds = [
+          { name: 'bang_snd', src: 'assets/sounds/bang.mp3' },
+          { name: 'wall_fall_snd', src: 'assets/sounds/wall_fall.mp3' },
+          { name: 'wall_hit_snd', src: 'assets/sounds/wall_hit.mp3' },
+          { name: 'fu_snd ', src: 'assets/sounds/fu.mp3' },
+          { name: 'eat_snd', src: 'assets/sounds/eat.mp3' },
+          { name: 'boom_dzin_snd', src: 'assets/sounds/boom-dzin.mp3' },
+          { name: 'boom_up_down_snd', src: 'assets/sounds/boom-up-down.mp3' },
+          { name: 'rat_eat_snd', src: 'assets/sounds/rat_eat.mp3' },
+          { name: 'rat_cry_snd', src: 'assets/sounds/rat_cry.mp3' },
+        ]
+        this.soundsStillLoading = this.sounds.length;
+      };
+
+      loadImages() {
+        for (var i = 0; i < this.sprites.length; i++) {
+          this.sprites[i].sprite = new Image();
+          this.sprites[i].sprite.src = this.sprites[i].src;
+          this.sprites[i].sprite.onload = function () {
+            this.spritesStillLoading--;
+          };
         }
-        #canvas-wrapper {
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-          width: 100%;
-          align-items: center;
-          justify-content: center;
+      }
+      loadsounds() {
+        for (var i = 0; i < this.sounds.length; i++) {
+          this.sounds[i].sound = new Audio();
+          this.sounds[i].sound.src = this.sounds[i].src;
         }
-        #canvas {
-          background-image: url('assets/images/bg.jpg');
-          background-size: contain;
-        }
-      </style>
-    </head>
-    <body>
-      <div id="canvas-wrapper">
-        <canvas id="canvas" width="1920" height="1080"></canvas>
-      </div>
-      <script>
-        class Game{
-          name;
-          age;
-          constructor(pName, pAge){
-            this.name = pName;
-            this.age = pAge;
-          }
-          print(){
-            console.log(`Name: ${this.name}  Age: ${this.age}`);
-          }
-        }
-          /*
-      <div id="canvas-wrapper">
-        <canvas id="canvas" width="1920" height="1080"></canvas>
-      </div>
-      <script>
-        class Game{
-          name;
-          age;
-          constructor(pName, pAge){
-            this.name = pName;
-            this.age = pAge;
-          }
-          print(){
-            console.log(`Name: ${this.name}  Age: ${this.age}`);
-          }
-        }
-          /*
-window.onload = function () {
-  var width = '1920',
-      height = '1080',
-  var width = '1920',
-      height = '1080',
-      canvas = document.getElementsByTagName('canvas')[0],
+      }
+      start() {
+        //if(this.spritesStillLoading > 0)window.requestAnimationFrame(this.start());
+        console.log(this.spritesStillLoading)
+      }
+
+    }
+
+
+    /*
+
+    var width = '1920';
+    var height = '1080';
+    var k = 1080 / 1920;
+    var canvas = null;
+    var context = null;
+    var image = new Image();
+    var intro = new Image();
+    var nyama = new Image();
+
+    const update = () => {
+
+    }
+    function resize() {
+      const h = window.innerHeight;
+      const w = window.innerWidth;
+      let currentW = w;
+      let currentH = w * k;
+      if (currentH > h) {
+        currentH = h;
+        currentW = h / k;
+      }
+      canvas.width = currentW;
+      canvas.height = currentH;
+      canvas.style.width = currentW + 'px';
+      canvas.style.height = currentH + 'px';
+      context.clearRect(0, 0, currentW, currentH);
+      console.log(currentW, intro.width, (currentW - intro.width) / 2, (currentH - intro.height) / 2)
+      context.translate(nyama.width, 0);
+      context.scale(-1, 1)
+      context.transform(1, -1, 1, 1, nyama.width, 0)
+      context.drawImage(nyama, 0, 0);
+    }
+    */
+
+    window.onload = function () {
+      
+    
+  
+      game.start();
+      
+      /*
+      canvas = document.getElementsByTagName('canvas')[0];
       context = canvas.getContext('2d');
-  canvas.width = width;
-  canvas.height = height;
-  var image = new Image();
-  image.src = 'assets/intro.png';
-  function draw(x, y, degrees) {
-    context.translate(x + image.width / 2, y + image.height / 2);
-    context.rotate(degrees * Math.PI / 180);
-    context.drawImage(image, 0, 0, image.width, image.height, -image.width / 2, -image.height / 2, image.width, image.height);
-    context.drawImage(image, 0, 0, image.width, image.height, -image.width / 2, -image.height / 2, image.width, image.height);
-    //context.rotate(-degrees * Math.PI / 180);
-    //context.translate(-x - image.width / 2, -y - image.height / 2);
-    // 1,0,0,-1,0,canvas.height
-    // 1,0,0,-1,0,canvas.height
-   
-    context.setTransform(0, -1, 0, 1, 0, image.height);
-    context.drawImage(image, 0, 0);
-  }
-  image.onload = function () {
-    // var degrees = 180;
-    function loop(degrees) {
-      // degrees = (degrees + 1) % 360;
-      context.fillRect(0, 0, canvas.width, canvas.height);
-      draw(image,0, 0, degrees);
-      //window.requestAnimationFrame(loop);
-    };
-    //window.requestAnimationFrame(loop);
-    loop(-180);
-  };
-};
-          */
-          var width = '1920';
-          var height = '1080';
-          var k = 1080/1920;
-          var canvas = null;
-          var context = null;
-          var image = new Image();
-          var intro = new Image();
+      image.src = 'assets/images/bg.jpg';
+      intro.src = 'assets/images/intro.png';
+      nyama.src = 'assets/images/nyama_norm.png';
 
-          const update = ()=> {
-
-          }
-          function resize() {
-            const h=window.innerHeight;
-            const w=window.innerWidth;
-            let currentW = w;
-            let currentH = w*k;
-            if(currentH > h) {
-              currentH = h;
-              currentW = h/k;
-            }
-            canvas.width = currentW;
-            canvas.height = currentH;
-            canvas.style.width = currentW+'px';
-            canvas.style.height = currentH+'px';
-            context.clearRect(0, 0, currentW, currentH);
-            console.log(currentW, intro.width, (currentW-intro.width)/2, (currentH-intro.height)/2)
-            // context.translate(300, 300);
-            context.drawImage(intro, (currentW-intro.width)/2,  (currentH-intro.height)/2);
-          }
-          
-          window.onload = function() {
-            canvas = document.getElementsByTagName('canvas')[0];
-            context = canvas.getContext('2d');
-            image.src = 'assets/images/bg.jpg';
-            intro.src = 'assets/images/intro.png';
-            
-            window.onresize = resize;
-            window.requestAnimationFrame(resize);
-          }
-        </script>
-    </body>
-
+      window.onresize = resize;
+      window.requestAnimationFrame(resize);
+      resize();*/
+    }
+    game = new Game;
+    game.loadImages();
+    game.loadsounds();
+  </script>
+</body>
 </html>
