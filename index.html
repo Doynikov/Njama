@@ -33,31 +33,32 @@
 
     class Game {
       constructor() {
-        this.sprites = [
-          { name: 'nam_bang', src: 'assets/images/nyama_bang.png' },
-          { name: 'nam_die', src: 'assets/images/nyama_die.png' },
-          { name: 'nam_normal', src: 'assets/images/nyama_norm.png' },
-          { name: 'nam_red', src: 'assets/images/nyama_red.png' },
-          { name: 'nam_die_dn ', src: 'assets/images/nyama_die_dn.png' },
-          { name: 'bang_image', src: 'assets/images/bang.png' },
-          { name: 'nam_njam', src: 'assets/images/nyama_njam.png' },
-          { name: 'nam_press', src: 'assets/images/nyama_press.png' },
-          { name: 'nam_jump', src: 'assets/images/nyama_fly.png' },
-          { name: 'gift_hide', src: 'assets/images/gift_hide.png' },
-          { name: 'nam_wall_left', src: 'assets/images/nyama_wall_left.png' },
-          { name: 'nam_wall_right', src: 'assets/images/nyama_wall_right.png' },
-          { name: 'nam_die_up_star', src: 'assets/images/nyama_die_up_star.png' },
-          { name: 'nam_down_star', src: 'assets/images/nyama_down_star.png' },
-          { name: 'intro_image', src: 'assets/images/intro.png' },
-          { name: 'rat_image_l', src: 'assets/images/rat_big_l.png' },
-          { name: 'rat_image_r', src: 'assets/images/rat_big_r.png' },
-          { name: 'rat_die', src: 'assets/images/rat_die.png' },
-          { name: 'rat_break', src: 'assets/images/rat_break.png' },
-          { name: 'nam_blood_1', src: 'assets/images/nyama_blood_1.png' },
-          { name: 'nam_blood_2', src: 'assets/images/nyama_blood_2.png' },
-        ];
+        this.sprites = {
+          bg:  { name: 'bg', src: 'assets/images/bg.jpg' },
+          nam_bang: { name: 'nam_bang', src: 'assets/images/nyama_bang.png' },
+          nam_die: { name: 'nam_die', src: 'assets/images/nyama_die.png' },
+          nam_normal: { name: 'nam_normal', src: 'assets/images/nyama_norm.png' },
+          nam_red: { name: 'nam_red', src: 'assets/images/nyama_red.png' },
+          nam_die_dn: { name: 'nam_die_dn ', src: 'assets/images/nyama_die_dn.png' },
+          bang_image: { name: 'bang_image', src: 'assets/images/bang.png' },
+          nam_njam: { name: 'nam_njam', src: 'assets/images/nyama_njam.png' },
+          nam_press: { name: 'nam_press', src: 'assets/images/nyama_press.png' },
+          nam_jump: { name: 'nam_jump', src: 'assets/images/nyama_fly.png' },
+          gift_hide: { name: 'gift_hide', src: 'assets/images/gift_hide.png' },
+          nam_wall_left: { name: 'nam_wall_left', src: 'assets/images/nyama_wall_left.png' },
+          nam_wall_right: { name: 'nam_wall_right', src: 'assets/images/nyama_wall_right.png' },
+          nam_die_up_star: { name: 'nam_die_up_star', src: 'assets/images/nyama_die_up_star.png' },
+          nam_down_star: { name: 'nam_down_star', src: 'assets/images/nyama_down_star.png' },
+          intro_image: { name: 'intro_image', src: 'assets/images/intro.png' },
+          rat_image_l: { name: 'rat_image_l', src: 'assets/images/rat_big_l.png' },
+          rat_image_r: { name: 'rat_image_r', src: 'assets/images/rat_big_r.png' },
+          rat_die: { name: 'rat_die', src: 'assets/images/rat_die.png' },
+          rat_break: { name: 'rat_break', src: 'assets/images/rat_break.png' },
+          nam_blood_1: { name: 'nam_blood_1', src: 'assets/images/nyama_blood_1.png' },
+          nam_blood_2: { name: 'nam_blood_2', src: 'assets/images/nyama_blood_2.png' },
+        };
 
-        this.spritesStillLoading = this.sprites.length;
+        this.spritesStillLoading = Object.keys(this.sprites).length;
 
         this.sounds = [
           { name: 'bang_snd', src: 'assets/sounds/bang.mp3' },
@@ -70,18 +71,16 @@
           { name: 'rat_eat_snd', src: 'assets/sounds/rat_eat.mp3' },
           { name: 'rat_cry_snd', src: 'assets/sounds/rat_cry.mp3' },
         ]
-        // this.soundsStillLoading = this.sounds.length;
       };
 
       loadImages = () => {
-        for (var i = 0; i < this.sprites.length; i++) {
-
-          this.sprites[i].sprite = new Image();
-          this.sprites[i].sprite.src = this.sprites[i].src;
-          this.sprites[i].sprite.onload = () => {
+        for (const key in this.sprites) {
+          this.sprites[key].sprite = new Image();
+          this.sprites[key].sprite.src = this.sprites[key].src;
+          this.sprites[key].sprite.onload = () => {
             this.spritesStillLoading--;
           };
-        }
+        };
       }
 
       loadsounds = () => {
@@ -103,7 +102,8 @@
       };
 
       start() {
-        console.log(this.spritesStillLoading)
+        console.log(this.spritesStillLoading);
+        console.log(this.sprites.bg.sprite.width)
       }
 
     }
