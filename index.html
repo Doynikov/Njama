@@ -33,7 +33,7 @@
 
     class Game {
       constructor() {
-        this.sprites = {
+        this.images = {
           bg:  { name: 'bg', src: 'assets/images/bg.jpg' },
           nam_bang: { name: 'nam_bang', src: 'assets/images/nyama_bang.png' },
           nam_die: { name: 'nam_die', src: 'assets/images/nyama_die.png' },
@@ -55,10 +55,10 @@
           rat_die: { name: 'rat_die', src: 'assets/images/rat_die.png' },
           rat_break: { name: 'rat_break', src: 'assets/images/rat_break.png' },
           nam_blood_1: { name: 'nam_blood_1', src: 'assets/images/nyama_blood_1.png' },
-          nam_blood_2: { name: 'nam_blood_2', src: 'assets/images/nyama_blood_2.png' },
+          nam_blood_2: { name: 'nam_blood_2', src: 'assets/images/nyama_blood_2.pngo' },
         };
 
-        this.spritesStillLoading = Object.keys(this.sprites).length;
+        this.imagesStillLoading = Object.keys(this.images).length;
 
         this.sounds = [
           { name: 'bang_snd', src: 'assets/sounds/bang.mp3' },
@@ -69,16 +69,19 @@
           { name: 'boom_dzin_snd', src: 'assets/sounds/boom-dzin.mp3' },
           { name: 'boom_up_down_snd', src: 'assets/sounds/boom-up-down.mp3' },
           { name: 'rat_eat_snd', src: 'assets/sounds/rat_eat.mp3' },
-          { name: 'rat_cry_snd', src: 'assets/sounds/rat_cry.mp3' },
+          { name: 'rat_cry_snd', src: 'assets/sounds/rat_cry.mp3р' },
         ]
       };
 
       loadImages = () => {
-        for (const key in this.sprites) {
-          this.sprites[key].sprite = new Image();
-          this.sprites[key].sprite.src = this.sprites[key].src;
-          this.sprites[key].sprite.onload = () => {
-            this.spritesStillLoading--;
+        for (const key in this.images) {
+          this.images[key].img = new Image();
+          this.images[key].img.src = this.images[key].src;
+          this.images[key].img.onload = () => {
+            this.imagesStillLoading--;
+          };
+          this.images[key].img.onerror = () => {
+           console.log('ошибка загрузки файла' + this.images[key].img.src)
           };
         };
       }
@@ -90,19 +93,8 @@
         }
       }
 
-      assetLoadingLoop = () => {
-        if (game.spritesStillLoading > 0) {
-          console.log(this.spritesStillLoading, 'loop')
-          setTimeout(this.assetLoadingLoop, 1);
-        }
-        else {
-          this.start();
-        }
-    
-      };
-
       start() {
-        console.log(this.spritesStillLoading);
+        console.log(this.spritesStillLoading, 'statt');
         console.log(this.sprites.bg.sprite.width)
       }
 
@@ -146,7 +138,8 @@
     */
 
     window.onload = function () {
-      game.assetLoadingLoop();
+      console.log(game.imagesStillLoading, 'onload');
+      //game.assetLoadingLoop();
       
       /*
       canvas = document.getElementsByTagName('canvas')[0];
@@ -162,8 +155,7 @@
     game = new Game;
     game.loadImages();
     game.loadsounds();
-    // game.assetLoadingLoop();
-    game.start();
+    console.log(game.imagesStillLoading, 'before onload');
   </script>
 </body>
 </html>
