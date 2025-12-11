@@ -80,9 +80,6 @@
           this.images[key].img.onload = () => {
             this.imagesStillLoading--;
           };
-          this.images[key].img.onerror = () => {
-           console.log('ошибка загрузки файла' + this.images[key].img.src)
-          };
         };
       }
 
