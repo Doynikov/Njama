@@ -25,37 +25,112 @@
 
 <body>
   <div id="canvas-wrapper">
-    <canvas id="canvas" width="1920" height="1080"></canvas>
+    <canvas id="canvas" width="1300" height="731"></canvas>
   </div>
-  <script>
+  <script type="text/javascript">
 
+    class Events {
+      constructor() {
+        this.keyUp = false;
+        this.keyLeft = false;
+        this.keyRight = false;
+      }
+  
+      handleKeyDown = (e) => {
+        const code = e.keyCode;
+        switch (code) {
+          case 38:
+            this.keyUp = true;
+            break;
+          case 37:
+            this.keyLeft = true;
+            break;
+          case 39:
+            this.keyRight = true;
+            break;
+        }
+      }
 
+      handleKeyUp = (e) => {
+        const code = e.keyCode;
+        switch (code) {
+          case 38:
+            this.keyUp = false;
+            break;
+          case 37:
+            this.keyLeft = false;
+            break;
+          case 39:
+            this.keyRight = false;
+            break;
+        }
+      }
+    }
+
+    class Nyama {
+      constructor() {
+        this.name = 'nyama';
+        this.sprite = game.images[this.name].sprite;
+        this.width = this.sprite.width;
+        this.height = this.sprite.height;
+        this.pos = { x: game.center.x, y: game.height - this.height};
+        this.step_go = 3;
+        this.step_jump = 5;
+        this.direct = 'left';
+      }
+
+      moveLeft = () => {
+        this.direct = 'left'
+        this.pos.x -= this.step_go;
+      }
+
+      update = () => {
+        if (nyama.direct === 'right') {
+          game.ctx.translate(this.pos.x * game.k_sprites + this.width * game.k_sprites, this.pos.y * game.k_sprites);
+          game.ctx.scale(game.k_sprites * -1, game.k_sprites);
+        } else {
+          game.ctx.translate(this.pos.x * game.k_sprites, this.pos.y * game.k_sprites);
+          game.ctx.scale(game.k_sprites, game.k_sprites);
+        }
+        game.ctx.drawImage(this.sprite, 0, 0);
+      }
+    }
 
     class Game {
       constructor() {
+        this.canvas = document.getElementsByTagName('canvas')[0];
+        this.ctx = this.canvas.getContext('2d');
+        this.width = canvas.width;
+        this.height = canvas.height;
+
+        this.width_default = this.width;
+        this.height_default = this.height;        
+        this.k = this.height / this.width;
+        this.k_sprites = 1;
+
         this.images = {
           bg:  { name: 'bg', src: 'assets/images/bg.jpg' },
-          nam_bang: { name: 'nam_bang', src: 'assets/images/nyama_bang.png' },
-          nam_die: { name: 'nam_die', src: 'assets/images/nyama_die.png' },
-          nam_normal: { name: 'nam_normal', src: 'assets/images/nyama_norm.png' },
-          nam_red: { name: 'nam_red', src: 'assets/images/nyama_red.png' },
-          nam_die_dn: { name: 'nam_die_dn ', src: 'assets/images/nyama_die_dn.png' },
+          nyama: { name: 'nyama', src: 'assets/images/nyama.png' },
+          nyama_bang: { name: 'nyama_bang', src: 'assets/images/nyama_bang.png' },
+          nyama_die: { name: 'nyama_die', src: 'assets/images/nyama_die.png' },
+          nyama_red: { name: 'nyama_red', src: 'assets/images/nyama_red.png' },
+          nyama_die_dn: { name: 'nyama_die_dn ', src: 'assets/images/nyama_die_dn.png' },
           bang_image: { name: 'bang_image', src: 'assets/images/bang.png' },
-          nam_njam: { name: 'nam_njam', src: 'assets/images/nyama_njam.png' },
-          nam_press: { name: 'nam_press', src: 'assets/images/nyama_press.png' },
-          nam_jump: { name: 'nam_jump', src: 'assets/images/nyama_fly.png' },
+          nyama_njam: { name: 'nyama_njam', src: 'assets/images/nyama_njam.png' },
+          nyama_press: { name: 'nyama_press', src: 'assets/images/nyama_press.png' },
+          nyama_jump: { name: 'nyama_jump', src: 'assets/images/nyama_fly.png' },
           gift_hide: { name: 'gift_hide', src: 'assets/images/gift_hide.png' },
-          nam_wall_left: { name: 'nam_wall_left', src: 'assets/images/nyama_wall_left.png' },
-          nam_wall_right: { name: 'nam_wall_right', src: 'assets/images/nyama_wall_right.png' },
-          nam_die_up_star: { name: 'nam_die_up_star', src: 'assets/images/nyama_die_up_star.png' },
-          nam_down_star: { name: 'nam_down_star', src: 'assets/images/nyama_down_star.png' },
+          nyama_wall_left: { name: 'nyama_wall_left', src: 'assets/images/nyama_wall_left.png' },
+          nyama_wall_right: { name: 'nyama_wall_right', src: 'assets/images/nyama_wall_right.png' },
+          nyama_die_up_star: { name: 'nyama_die_up_star', src: 'assets/images/nyama_die_up_star.png' },
+          nyama_down_star: { name: 'nyama_down_star', src: 'assets/images/nyama_down_star.png' },
           intro_image: { name: 'intro_image', src: 'assets/images/intro.png' },
           rat_image_l: { name: 'rat_image_l', src: 'assets/images/rat_big_l.png' },
           rat_image_r: { name: 'rat_image_r', src: 'assets/images/rat_big_r.png' },
           rat_die: { name: 'rat_die', src: 'assets/images/rat_die.png' },
           rat_break: { name: 'rat_break', src: 'assets/images/rat_break.png' },
-          nam_blood_1: { name: 'nam_blood_1', src: 'assets/images/nyama_blood_1.png' },
-          nam_blood_2: { name: 'nam_blood_2', src: 'assets/images/nyama_blood_2.pngo' },
+          nyama_blood_1: { name: 'nyama_blood_1', src: 'assets/images/nyama_blood_1.png' },
+          nyama_blood_2: { name: 'nyama_blood_2', src: 'assets/images/nyama_blood_2.png' },
         };
 
         this.imagesStillLoading = Object.keys(this.images).length;
@@ -69,18 +144,27 @@
           { name: 'boom_dzin_snd', src: 'assets/sounds/boom-dzin.mp3' },
           { name: 'boom_up_down_snd', src: 'assets/sounds/boom-up-down.mp3' },
           { name: 'rat_eat_snd', src: 'assets/sounds/rat_eat.mp3' },
-          { name: 'rat_cry_snd', src: 'assets/sounds/rat_cry.mp3р' },
+          { name: 'rat_cry_snd', src: 'assets/sounds/rat_cry.mp3' },
         ]
       };
 
+      get center() {
+        return {
+          x: this.canvas.width / 2,
+          y: this.canvas.height / 2,
+        }
+      }
+
       loadImages = () => {
         for (const key in this.images) {
-          this.images[key].img = new Image();
-          this.images[key].img.src = this.images[key].src;
-          this.images[key].img.onload = () => {
+          let img = new Image();
+          img.addEventListener('load',(event) => {
             this.imagesStillLoading--;
-          };
-        };
+          });
+          img.src = this.images[key].src;
+          this.images[key].sprite = img;
+          this.images[key].name = key;
+        }
       }
 
       loadsounds = () => {
@@ -90,69 +174,59 @@
         }
       }
 
-      start() {
-        console.log(this.spritesStillLoading, 'statt');
-        console.log(this.sprites.bg.sprite.width)
+      resize = () => {
+        const h = window.innerHeight;
+        const w = window.innerWidth;
+        this.width = w;
+        this.height = w * this.k;
+        if (this.height > h) {
+          this.height = h;
+          this.width = h / this.k;
+        }
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this.k_sprites = this.width / this.width_default;
       }
 
-    }
-
-
-    /*
-
-    var width = '1920';
-    var height = '1080';
-    var k = 1080 / 1920;
-    var canvas = null;
-    var context = null;
-    var image = new Image();
-    var intro = new Image();
-    var nyama = new Image();
-
-    const update = () => {
-
-    }
-    function resize() {
-      const h = window.innerHeight;
-      const w = window.innerWidth;
-      let currentW = w;
-      let currentH = w * k;
-      if (currentH > h) {
-        currentH = h;
-        currentW = h / k;
+      update = () => {
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.ctx.save();
+        nyama.update()
+        this.ctx.restore();
       }
-      canvas.width = currentW;
-      canvas.height = currentH;
-      canvas.style.width = currentW + 'px';
-      canvas.style.height = currentH + 'px';
-      context.clearRect(0, 0, currentW, currentH);
-      console.log(currentW, intro.width, (currentW - intro.width) / 2, (currentH - intro.height) / 2)
-      context.translate(nyama.width, 0);
-      context.scale(-1, 1)
-      context.transform(1, -1, 1, 1, nyama.width, 0)
-      context.drawImage(nyama, 0, 0);
-    }
-    */
 
-    window.onload = function () {
-      console.log(game.imagesStillLoading, 'onload');
-      //game.assetLoadingLoop();
-      
-      /*
-      canvas = document.getElementsByTagName('canvas')[0];
-      context = canvas.getContext('2d');
-      image.src = 'assets/images/bg.jpg';
-      intro.src = 'assets/images/intro.png';
-      nyama.src = 'assets/images/nyama_norm.png';
+      mainLoop = () => {
+        if(events.keyLeft) {
+          nyama.moveLeft();
+        }
+        this.update();
 
-      window.onresize = resize;
-      window.requestAnimationFrame(resize);
-      resize();*/
+        window.setTimeout(game.mainLoop, 1000/60);
+      } 
+
+      start = () => {
+        window.addEventListener('resize',(event) => {
+          this.resize()
+        });
+        
+        window.requestAnimationFrame(this.resize);
+        this.mainLoop();
+
+      }
     }
+    events = new Events;
+    window.onkeydown = events.handleKeyDown;
+    window.onkeyup = events.handleKeyUp;
+
     game = new Game;
     game.loadImages();
     game.loadsounds();
-    console.log(game.imagesStillLoading, 'before onload');
+    
+    window.onload = function () {
+      nyama = new Nyama;
+      game.start();
+    }
+
   </script>
 </body>
 </html>
