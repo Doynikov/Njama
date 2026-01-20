@@ -74,16 +74,36 @@
         this.width = this.sprite.width;
         this.height = this.sprite.height;
         this.pos = { x: game.center.x, y: game.height - this.height};
-        this.step_go = 3;
+        this.step_go = 20;
         this.step_jump = 5;
+        this.step_dowm = 10
         this.direct = 'left';
       }
-
+    
       moveLeft = () => {
         this.direct = 'left'
-        this.pos.x -= this.step_go;
+        if (this.pos.x > 0) {
+          this.pos.x -= this.step_go;
+        }
       }
-
+      moveRight = () => {
+        this.direct = 'right'
+        console.log(this.pos.x , game.width,  this.width, game.k_sprites)
+        if (this.pos.x * game.k_sprites < (game.width - this.width * game.k_sprites) ) {
+          this.pos.x += this.step_go;
+        }
+      }
+      moveUp = () => {
+        this.direct = 'up'
+        if (this.pos.y > 0) {
+          this.pos.y -= this.step_jump;
+        }
+      }
+      moveDown = () => {
+        if (this.pos.y > 0) {
+          this.pos.y -= this.step_jump;
+        }
+      }   
       update = () => {
         if (nyama.direct === 'right') {
           game.ctx.translate(this.pos.x * game.k_sprites + this.width * game.k_sprites, this.pos.y * game.k_sprites);
@@ -186,6 +206,7 @@
         this.canvas.width = this.width;
         this.canvas.height = this.height;
         this.k_sprites = this.width / this.width_default;
+       
       }
 
       update = () => {
@@ -198,7 +219,16 @@
       mainLoop = () => {
         if(events.keyLeft) {
           nyama.moveLeft();
+        } else if (events.keyRight) {
+          nyama.moveRight();
         }
+        if (events.keyUp) {
+          nyama.moveUp(); 
+        } 
+        else if (events.keyDown) {
+          nyama.moveDown();
+        }
+
         this.update();
 
         window.setTimeout(game.mainLoop, 1000/60);
@@ -214,6 +244,7 @@
 
       }
     }
+    
     events = new Events;
     window.onkeydown = events.handleKeyDown;
     window.onkeyup = events.handleKeyUp;
