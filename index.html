@@ -40,7 +40,9 @@
         const code = e.keyCode;
         switch (code) {
           case 38:
-            this.keyUp = true;
+            if (!nyama.isFall) {
+              this.keyUp = true;
+            }  
             break;
           case 37:
             this.keyLeft = true;
@@ -76,8 +78,11 @@
         this.pos = { x: game.center.x, y: game.height - this.height};
         this.step_go = 20;
         this.step_jump = 5;
-        this.step_dowm = 10
+        this.step_fall = 20
         this.direct = 'left';
+        this.isJump = false
+        this.isFall = false
+
       }
     
       moveLeft = () => {
@@ -86,6 +91,7 @@
           this.pos.x -= this.step_go;
         }
       }
+
       moveRight = () => {
         this.direct = 'right'
         console.log(this.pos.x , game.width,  this.width, game.k_sprites)
@@ -93,17 +99,30 @@
           this.pos.x += this.step_go;
         }
       }
+
       moveUp = () => {
-        this.direct = 'up'
+        if (this.isFall) return;
+
+        this.isJump = true;
         if (this.pos.y > 0) {
           this.pos.y -= this.step_jump;
+        } else {
+          this.isFall
+          events.keyUp = false
         }
+        
       }
-      moveDown = () => {
-        if (this.pos.y > 0) {
-          this.pos.y -= this.step_jump;
-        }
-      }   
+
+      fall = () => {
+        this.isFall = true
+        if (this.pos.y * game.k_sprites < (game.height - this.height * game.k_sprites) ) {
+          this.pos.y += this.step_fall;            
+        } else {
+          this.isJump = false
+          this.isFall = false
+        }        
+      } 
+
       update = () => {
         if (nyama.direct === 'right') {
           game.ctx.translate(this.pos.x * game.k_sprites + this.width * game.k_sprites, this.pos.y * game.k_sprites);
@@ -114,6 +133,36 @@
         }
         game.ctx.drawImage(this.sprite, 0, 0);
       }
+    }
+
+    class Gifts{
+      constructor() {
+        this.name = '';
+        this.sprite = null;
+        this.width = null;
+        this.height = null;
+        this.pos = { x: 0, y: 0};
+        this.step = 5;
+        this.isActive = false;
+      }
+
+      start_new() {
+        setTimeout(() => {
+          this.sprite = game.images[ game.gifts_images[Math.round( Math.random() * (game.gifts_images.length - 1))]].sprite;
+          console.log(Math.round( Math.random() * game.gifts_images.length - 1))
+          this.pos.x =  Math.random() * game.width
+          this.pos.y = 100
+          this.isActive = true
+        });  
+      }
+      fall = () => {
+        this.isFall = true
+        if (this.pos.y * game.k_sprites < (game.height - this.height * game.k_sprites) ) {
+          this.pos.y += this.step_fall;
+        } else {
+                    
+        }        
+      }   
     }
 
     class Game {
@@ -151,7 +200,17 @@
           rat_break: { name: 'rat_break', src: 'assets/images/rat_break.png' },
           nyama_blood_1: { name: 'nyama_blood_1', src: 'assets/images/nyama_blood_1.png' },
           nyama_blood_2: { name: 'nyama_blood_2', src: 'assets/images/nyama_blood_2.png' },
+          bomb: { name: 'bomb', src: 'assets/images/bomb.png'},
+          brick: { name: 'brick', src: 'assets/images/brick.png'},
+          cake: { name: 'cake', src: 'assets/images/cake.png'},
+          candy_green: { name: 'candy_green', src: 'assets/images/candy_green.png'},
+          candy_red: { name: 'candy_red', src: 'assets/images/candy_red.png'},
         };
+
+        this.gifts_images = [
+          'bomb', 'brick', 'cake', 'candy_red', 'candy_green'
+        ]; 
+        this.gifts_sprites = []; 
 
         this.imagesStillLoading = Object.keys(this.images).length;
 
@@ -224,10 +283,11 @@
         }
         if (events.keyUp) {
           nyama.moveUp(); 
-        } 
-        else if (events.keyDown) {
-          nyama.moveDown();
         }
+        else if(nyama.isJump) {
+          nyama.fall();
+        }
+       
 
         this.update();
 
@@ -240,6 +300,14 @@
         });
         
         window.requestAnimationFrame(this.resize);
+        for(let i = 0; i < 4; i++) {
+            const spr = this.gifts_sprites.push(new Gifts);
+            setTimeout(() => {
+              this.gifts_sprites[i].start_new();  
+            },500
+          )
+
+        }
         this.mainLoop();
 
       }
