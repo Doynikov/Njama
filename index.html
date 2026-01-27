@@ -94,7 +94,6 @@
 
       moveRight = () => {
         this.direct = 'right'
-        console.log(this.pos.x , game.width,  this.width, game.k_sprites)
         if (this.pos.x * game.k_sprites < (game.width - this.width * game.k_sprites) ) {
           this.pos.x += this.step_go;
         }
@@ -142,28 +141,64 @@
         this.width = null;
         this.height = null;
         this.pos = { x: 0, y: 0};
-        this.step = 5;
+        this.step = 4;
         this.isActive = false;
+        this.hide_delay_counter = 0;
+        this.fall_end_y = 0;
+
       }
 
       start_new() {
         setTimeout(() => {
-          this.sprite = game.images[ game.gifts_images[Math.round( Math.random() * (game.gifts_images.length - 1))]].sprite;
-          console.log(Math.round( Math.random() * game.gifts_images.length - 1))
-          this.pos.x =  Math.random() * game.width
-          this.pos.y = 100
-          this.isActive = true
-        });  
+          this.name =  game.gifts_images[Math.round( Math.random() * (game.gifts_images.length - 1))]
+          this.sprite = game.images[this.name].sprite;
+          console.log(game.width)
+          this.pos.x =  Math.random() * game.width ;
+          this.pos.y = 0
+          this.isActive = true;
+          this.width = this.sprite.width;
+          this.height = this.sprite.height;
+          if(this.name !== 'bomb') {
+            this.fall_end_y = Math.random() * game.height - this.height * game.k_sprites;
+          } else {
+            console.log(game.height, this.height, game.k_sprites, 'kkkkkk')
+            this.fall_end_y = game.height - this.height * game.k_sprites;
+          }
+          
+        },Math.random() * 5000);  
       }
+
       fall = () => {
-        this.isFall = true
-        if (this.pos.y * game.k_sprites < (game.height - this.height * game.k_sprites) ) {
-          this.pos.y += this.step_fall;
-        } else {
-                    
+        if (this.pos.y * game.k_sprites <this.fall_end_y) {
+          this.pos.y += this.step;          
+        } else if(this.isActive) {
+
+          if(this.name !== 'bomb') {
+            this.sprite = game.images['gift_hide'].sprite;
+            this.hide_delay_counter ++;
+            if(this.hide_delay_counter === 20)  {
+              this.isActive = false; 
+              this.hide_delay_counter = 0
+              this.start_new()
+            }
+          } else {
+            this.sprite = game.images['bang_image'].sprite;
+            this.hide_delay_counter ++;
+            if(this.hide_delay_counter === 20)  {
+              this.isActive = false; 
+              this.hide_delay_counter = 0
+              this.start_new()
+            }
+          }
+                  
         }        
-      }   
+      } 
+
+      update = () => {
+        game.ctx.drawImage(this.sprite, this.pos.x * game.k_sprites, this.pos.y * game.k_sprites);
+      }
     }
+    
 
     class Game {
       constructor() {
@@ -273,6 +308,14 @@
         this.ctx.save();
         nyama.update()
         this.ctx.restore();
+        this.ctx.save();
+        this.gifts_sprites.forEach((item => {
+
+          if(item.isActive) {
+            item.update();
+          }
+        })) 
+        this.ctx.restore();
       }
 
       mainLoop = () => {
@@ -287,7 +330,12 @@
         else if(nyama.isJump) {
           nyama.fall();
         }
-       
+        this.gifts_sprites.forEach((item => {
+      
+          if(item.isActive) {
+            item.fall();
+          }
+        })) 
 
         this.update();
 
