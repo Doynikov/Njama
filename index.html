@@ -35,14 +35,14 @@
         this.keyLeft = false;
         this.keyRight = false;
       }
-  
+
       handleKeyDown = (e) => {
         const code = e.keyCode;
         switch (code) {
           case 38:
             if (!nyama.isFall) {
               this.keyUp = true;
-            }  
+            }
             break;
           case 37:
             this.keyLeft = true;
@@ -75,16 +75,22 @@
         this.sprite = game.images[this.name].sprite;
         this.width = this.sprite.width;
         this.height = this.sprite.height;
-        this.pos = { x: game.center.x, y: game.height - this.height};
-        this.step_go = 20;
+        this.pos = { x: game.center.x, y: game.height - this.height };
+        this.step_go = 10;
         this.step_jump = 5;
         this.step_fall = 20
         this.direct = 'left';
-        this.isJump = false
-        this.isFall = false
+        this.isJump = false;
+        this.isFall = false;
+        this.is_eat_good = false;
+        this.is_eat_bad = false;
+        this.is_brick = false;
+        this.eat_good_delay_counter = 0;
+        this.eat_bad_delay_counter = 0;
+        this.brick_delay_counter = 0;
 
       }
-    
+
       moveLeft = () => {
         this.direct = 'left'
         if (this.pos.x > 0) {
@@ -94,7 +100,7 @@
 
       moveRight = () => {
         this.direct = 'right'
-        if (this.pos.x * game.k_sprites < (game.width - this.width * game.k_sprites) ) {
+        if (this.pos.x * game.k_sprites < (game.width - this.width * game.k_sprites)) {
           this.pos.x += this.step_go;
         }
       }
@@ -109,18 +115,18 @@
           this.isFall
           events.keyUp = false
         }
-        
+
       }
 
       fall = () => {
         this.isFall = true
-        if (this.pos.y * game.k_sprites < (game.height - this.height * game.k_sprites) ) {
-          this.pos.y += this.step_fall;            
+        if (this.pos.y * game.k_sprites < (game.height - this.height * game.k_sprites)) {
+          this.pos.y += this.step_fall;
         } else {
           this.isJump = false
           this.isFall = false
-        }        
-      } 
+        }
+      }
 
       update = () => {
         if (nyama.direct === 'right') {
@@ -132,15 +138,75 @@
         }
         game.ctx.drawImage(this.sprite, 0, 0);
       }
+      set_normal = () => {
+        this.name = 'nyama'
+        this.sprite = game.images[this.name].sprite;
+      }
+
+      eat_good = () => {
+        this.eat_good_delay_counter++;
+        if (!this.is_eat_good) {
+          this.is_eat_good = true;
+          this.name = 'nyama_njam';
+          this.sprite = game.images[this.name].sprite;
+          game.sounds[4].sound.play()
+        }
+        if (this.eat_good_delay_counter > 300) {
+          this.is_eat_good = false;
+          this.eat_good_delay_counter = 0;
+          this.set_normal()
+        }
+
+      }
+
+      eat_bad = () => {
+        this.eat_bad_delay_counter++;
+        if (!this.is_eat_bad) {
+          this.is_eat_bad = true;
+          this.name = 'nyama_red';
+          this.sprite = game.images[this.name].sprite;
+          game.sounds[3].sound.play()
+        }
+        if (this.eat_bad_delay_counter > 50) {
+          this.is_eat_bad = false;
+          this.eat_bad_delay_counter = 0;
+          this.set_normal()
+        }
+      }
+
+
+      brick = () => {
+        this.brick_delay_counter ++;
+        if (!this.is_brick) {
+          this.is_brick = true;
+          this.name = 'nyama_down_star';
+          this.sprite = game.images[this.name].sprite;
+          game.sounds[5].sound.play()
+        }
+        if (this.brick_delay_counter > 50) {
+          this.is_brick = false;
+          this.brick_delay_counter = 0;
+          this.set_normal()
+        }
+      
+
+      }
+      bang = () => {
+        console.log('аооаоааоаоаоаооа')
+      }
+
     }
 
-    class Gifts{
+
+
+
+    class Gifts {
       constructor() {
         this.name = '';
         this.sprite = null;
         this.width = null;
         this.height = null;
-        this.pos = { x: 0, y: 0};
+        this.pos = { x: 0, y: 0 };
         this.step = 4;
         this.isActive = false;
         this.hide_delay_counter = 0;
@@ -150,55 +216,89 @@
 
       start_new() {
         setTimeout(() => {
-          this.name =  game.gifts_images[Math.round( Math.random() * (game.gifts_images.length - 1))]
+          this.name = game.gifts_images[Math.round(Math.random() * (game.gifts_images.length - 1))]
+          //this.name = 'brick'
           this.sprite = game.images[this.name].sprite;
-          console.log(game.width)
-          this.pos.x =  Math.random() * game.width ;
+
+          this.pos.x = Math.random() * game.width_default;
           this.pos.y = 0
           this.isActive = true;
           this.width = this.sprite.width;
           this.height = this.sprite.height;
-          if(this.name !== 'bomb') {
+          if (this.name !== 'bomb') {
             this.fall_end_y = Math.random() * game.height - this.height * game.k_sprites;
           } else {
-            console.log(game.height, this.height, game.k_sprites, 'kkkkkk')
             this.fall_end_y = game.height - this.height * game.k_sprites;
           }
-          
-        },Math.random() * 5000);  
+          this.fall_end_y = game.height - (this.height + nyama.height) * game.k_sprites;
+
+        }, Math.random() * 5000);
       }
 
       fall = () => {
-        if (this.pos.y * game.k_sprites <this.fall_end_y) {
-          this.pos.y += this.step;          
-        } else if(this.isActive) {
+        if (this.pos.y * game.k_sprites < this.fall_end_y) {
+          this.pos.y += this.step * game.k_sprites;
+          const gift_x = (this.pos.x + this.width / 2) * game.k_sprites;
+          const gift_y = (this.pos.y + this.height / 2) * game.k_sprites;
+          const nyama_x = (nyama.pos.x + nyama.width / 2) * game.k_sprites;
+          const nyama_y = (nyama.pos.y + nyama.height / 2) * game.k_sprites;
 
-          if(this.name !== 'bomb') {
-            this.sprite = game.images['gift_hide'].sprite;
-            this.hide_delay_counter ++;
-            if(this.hide_delay_counter === 20)  {
-              this.isActive = false; 
-              this.hide_delay_counter = 0
-              this.start_new()
+          if ((Math.abs(gift_x - nyama_x) < this.width * game.k_sprites / 2)
+            && (Math.abs(gift_y - nyama_y) < this.height * game.k_sprites / 2)
+            && ((gift_x - nyama_x < 0 && nyama.direct === 'left')
+              || (gift_x - nyama_x > 0 && nyama.direct === 'right')
+              || Math.abs(gift_x - nyama_x) < 10)) {
+            //console.log('sdjaodjoa', gift_x, gift_y, nyama_x, nyama_y)
+            this.isActive = false;
+            this.start_new();
+            if (this.name === 'cake' || this.name === 'candy_green') {
+              nyama.eat_good();
+            } else if (this.name === 'candy_red') {
+              nyama.eat_bad();
+            } else if (this.name === 'brick') {
+              nyama.brick();
+            } else {
+              nyama.bang();
             }
-          } else {
-            this.sprite = game.images['bang_image'].sprite;
-            this.hide_delay_counter ++;
-            if(this.hide_delay_counter === 20)  {
-              this.isActive = false; 
-              this.hide_delay_counter = 0
-              this.start_new()
-            }
+
           }
-                  
-        }        
-      } 
+
+
+        } else {
+          if (this.isActive) {
+            if (this.name !== 'bomb') {
+              this.sprite = game.images['gift_hide'].sprite;
+              this.hide_delay_counter++;
+              if (this.hide_delay_counter === 20) {
+                this.isActive = false;
+                this.hide_delay_counter = 0
+                this.start_new()
+              }
+            } else {
+              this.sprite = game.images['bang_image'].sprite;
+              this.hide_delay_counter++;
+              if (this.hide_delay_counter === 20) {
+                this.isActive = false;
+                this.hide_delay_counter = 0
+                this.start_new()
+              }
+            }
+
+          }
+        }
+      }
 
       update = () => {
-        game.ctx.drawImage(this.sprite, this.pos.x * game.k_sprites, this.pos.y * game.k_sprites);
+        game.ctx.save();
+        game.ctx.translate(this.pos.x * game.k_sprites, this.pos.y * game.k_sprites);
+        game.ctx.scale(game.k_sprites, game.k_sprites);
+        game.ctx.drawImage(this.sprite, 0, 0);
+        game.ctx.restore();
       }
     }
-    
+
+
+
 
     class Game {
       constructor() {
@@ -208,12 +308,12 @@
         this.height = canvas.height;
 
         this.width_default = this.width;
-        this.height_default = this.height;        
+        this.height_default = this.height;
         this.k = this.height / this.width;
         this.k_sprites = 1;
 
         this.images = {
-          bg:  { name: 'bg', src: 'assets/images/bg.jpg' },
+          bg: { name: 'bg', src: 'assets/images/bg.jpg' },
           nyama: { name: 'nyama', src: 'assets/images/nyama.png' },
           nyama_bang: { name: 'nyama_bang', src: 'assets/images/nyama_bang.png' },
           nyama_die: { name: 'nyama_die', src: 'assets/images/nyama_die.png' },
@@ -235,17 +335,17 @@
           rat_break: { name: 'rat_break', src: 'assets/images/rat_break.png' },
           nyama_blood_1: { name: 'nyama_blood_1', src: 'assets/images/nyama_blood_1.png' },
           nyama_blood_2: { name: 'nyama_blood_2', src: 'assets/images/nyama_blood_2.png' },
-          bomb: { name: 'bomb', src: 'assets/images/bomb.png'},
-          brick: { name: 'brick', src: 'assets/images/brick.png'},
-          cake: { name: 'cake', src: 'assets/images/cake.png'},
-          candy_green: { name: 'candy_green', src: 'assets/images/candy_green.png'},
-          candy_red: { name: 'candy_red', src: 'assets/images/candy_red.png'},
+          bomb: { name: 'bomb', src: 'assets/images/bomb.png' },
+          brick: { name: 'brick', src: 'assets/images/brick.png' },
+          cake: { name: 'cake', src: 'assets/images/cake.png' },
+          candy_green: { name: 'candy_green', src: 'assets/images/candy_green.png' },
+          candy_red: { name: 'candy_red', src: 'assets/images/candy_red.png' },
         };
 
         this.gifts_images = [
           'bomb', 'brick', 'cake', 'candy_red', 'candy_green'
-        ]; 
-        this.gifts_sprites = []; 
+        ];
+        this.gifts_sprites = [];
 
         this.imagesStillLoading = Object.keys(this.images).length;
 
@@ -272,7 +372,7 @@
       loadImages = () => {
         for (const key in this.images) {
           let img = new Image();
-          img.addEventListener('load',(event) => {
+          img.addEventListener('load', (event) => {
             this.imagesStillLoading--;
           });
           img.src = this.images[key].src;
@@ -300,59 +400,71 @@
         this.canvas.width = this.width;
         this.canvas.height = this.height;
         this.k_sprites = this.width / this.width_default;
-       
+
       }
 
       update = () => {
         this.ctx.clearRect(0, 0, this.width, this.height);
+        if (nyama.is_eat_good) {
+          nyama.eat_good();
+        }
+        if (nyama.is_eat_bad) {
+          nyama.eat_bad();
+        }
+        if (nyama.is_brick) {
+          nyama.brick();
+        }
         this.ctx.save();
         nyama.update()
         this.ctx.restore();
-        this.ctx.save();
+
+
         this.gifts_sprites.forEach((item => {
 
-          if(item.isActive) {
+          if (item.isActive) {
             item.update();
           }
-        })) 
-        this.ctx.restore();
+        }))
+
       }
 
       mainLoop = () => {
-        if(events.keyLeft) {
+        if (events.keyLeft) {
           nyama.moveLeft();
         } else if (events.keyRight) {
           nyama.moveRight();
         }
         if (events.keyUp) {
-          nyama.moveUp(); 
+          nyama.moveUp();
         }
-        else if(nyama.isJump) {
+        else if (nyama.isJump) {
           nyama.fall();
         }
         this.gifts_sprites.forEach((item => {
-      
-          if(item.isActive) {
+
+          if (item.isActive) {
             item.fall();
           }
-        })) 
+        }))
+
+
 
         this.update();
 
-        window.setTimeout(game.mainLoop, 1000/60);
-      } 
+        window.setTimeout(game.mainLoop, 1000 / 60);
+      }
 
       start = () => {
-        window.addEventListener('resize',(event) => {
+        window.addEventListener('resize', (event) => {
           this.resize()
         });
-        
+
         window.requestAnimationFrame(this.resize);
-        for(let i = 0; i < 4; i++) {
-            const spr = this.gifts_sprites.push(new Gifts);
-            setTimeout(() => {
-              this.gifts_sprites[i].start_new();  
-            },500
+        for (let i = 0; i < 4; i++) {
+          const spr = this.gifts_sprites.push(new Gifts);
+          setTimeout(() => {
+            this.gifts_sprites[i].start_new();
+          }, 500
           )
 
         }
@@ -360,7 +472,7 @@
 
       }
     }
-    
+
     events = new Events;
     window.onkeydown = events.handleKeyDown;
     window.onkeyup = events.handleKeyUp;
@@ -368,7 +480,7 @@
     game = new Game;
     game.loadImages();
     game.loadsounds();
-    
+
     window.onload = function () {
       nyama = new Nyama;
       game.start();
@@ -376,4 +488,5 @@
 
   </script>
 </body>
+
 </html>
