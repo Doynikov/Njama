@@ -100,7 +100,7 @@
 
       moveRight = () => {
         this.direct = 'right'
-        if (this.pos.x * game.k_sprites < (game.width - this.width * game.k_sprites)) {
+        if (this.pos.x * game.ks < (game.width - this.width * game.ks)) {
           this.pos.x += this.step_go;
         }
       }
@@ -120,7 +120,7 @@
 
       fall = () => {
         this.isFall = true
-        if (this.pos.y * game.k_sprites < (game.height - this.height * game.k_sprites)) {
+        if (this.pos.y * game.ks < (game.height - this.height * game.ks)) {
           this.pos.y += this.step_fall;
         } else {
           this.isJump = false
@@ -130,11 +130,11 @@
 
       update = () => {
         if (nyama.direct === 'right') {
-          game.ctx.translate(this.pos.x * game.k_sprites + this.width * game.k_sprites, this.pos.y * game.k_sprites);
-          game.ctx.scale(game.k_sprites * -1, game.k_sprites);
+          game.ctx.translate(this.pos.x * game.ks + this.width * game.ks, this.pos.y * game.ks);
+          game.ctx.scale(game.ks * -1, game.ks);
         } else {
-          game.ctx.translate(this.pos.x * game.k_sprites, this.pos.y * game.k_sprites);
-          game.ctx.scale(game.k_sprites, game.k_sprites);
+          game.ctx.translate(this.pos.x * game.ks, this.pos.y * game.ks);
+          game.ctx.scale(game.ks, game.ks);
         }
         game.ctx.drawImage(this.sprite, 0, 0);
       }
@@ -226,25 +226,25 @@
           this.width = this.sprite.width;
           this.height = this.sprite.height;
           if (this.name !== 'bomb') {
-            this.fall_end_y = Math.random() * game.height - this.height * game.k_sprites;
+            this.fall_end_y = Math.random() * game.height - this.height * game.ks;
           } else {
-            this.fall_end_y = game.height - this.height * game.k_sprites;
+            this.fall_end_y = game.height - this.height * game.ks;
           }
-          this.fall_end_y = game.height - (this.height + nyama.height) * game.k_sprites;
+          this.fall_end_y = game.height - (this.height + nyama.height) * game.ks;
 
         }, Math.random() * 5000);
       }
 
       fall = () => {
-        if (this.pos.y * game.k_sprites < this.fall_end_y) {
-          this.pos.y += this.step * game.k_sprites;
-          const gift_x = (this.pos.x + this.width / 2) * game.k_sprites;
-          const gift_y = (this.pos.y + this.height / 2) * game.k_sprites;
-          const nyama_x = (nyama.pos.x + nyama.width / 2) * game.k_sprites;
-          const nyama_y = (nyama.pos.y + nyama.height / 2) * game.k_sprites;
+        if (this.pos.y * game.ks < this.fall_end_y) {
+          this.pos.y += this.step * game.ks;
+          const gift_x = (this.pos.x + this.width / 2) * game.ks;
+          const gift_y = (this.pos.y + this.height / 2) * game.ks;
+          const nyama_x = (nyama.pos.x + nyama.width / 2) * game.ks;
+          const nyama_y = (nyama.pos.y + nyama.height / 2) * game.ks;
 
-          if ((Math.abs(gift_x - nyama_x) < this.width * game.k_sprites / 2)
-            && (Math.abs(gift_y - nyama_y) < this.height * game.k_sprites / 2)
+          if ((Math.abs(gift_x - nyama_x) < this.width * game.ks / 2)
+            && (Math.abs(gift_y - nyama_y) < this.height * game.ks / 2)
             && ((gift_x - nyama_x < 0 && nyama.direct === 'left')
               || (gift_x - nyama_x > 0 && nyama.direct === 'right')
               || Math.abs(gift_x - nyama_x) < 10)) {
@@ -290,8 +290,8 @@
 
       update = () => {
         game.ctx.save();
-        game.ctx.translate(this.pos.x * game.k_sprites, this.pos.y * game.k_sprites);
-        game.ctx.scale(game.k_sprites, game.k_sprites);
+        game.ctx.translate(this.pos.x * game.ks, this.pos.y * game.ks);
+        game.ctx.scale(game.ks, game.ks);
         game.ctx.drawImage(this.sprite, 0, 0);
         game.ctx.restore();
       }
@@ -310,7 +310,7 @@
         this.width_default = this.width;
         this.height_default = this.height;
         this.k = this.height / this.width;
-        this.k_sprites = 1;
+        this.ks = 1;
 
         this.images = {
           bg: { name: 'bg', src: 'assets/images/bg.jpg' },
@@ -399,7 +399,7 @@
         }
         this.canvas.width = this.width;
         this.canvas.height = this.height;
-        this.k_sprites = this.width / this.width_default;
+        this.ks = this.width / this.width_default;
 
       }
 
