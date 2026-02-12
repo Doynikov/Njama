@@ -85,6 +85,7 @@
         this.is_eat_good = false;
         this.is_eat_bad = false;
         this.is_brick = false;
+        this.jump_delay_counter = 0;
         this.eat_good_delay_counter = 0;
         this.eat_bad_delay_counter = 0;
         this.brick_delay_counter = 0;
@@ -105,25 +106,63 @@
         }
       }
 
+      Jump = () => {
+        if (this.isFall) return;
+        this.jump_delay_counter++
+
+        if (!this.isJump) {
+          this.isJump = true;
+          this.name = 'nyama_press';
+          this.sprite = game.images[this.name].sprite;
+        }
+        if (this.jump_delay_counter > 10) {
+          
+          this.name = 'nyama_jump';
+          this.sprite = game.images[this.name].sprite;
+          console.log('idasuoida')
+          if (this.pos.y > 0) {
+            this.pos.y -= this.step_jump;
+          } else {
+            this.isFall = true
+            this.jump_delay_counter = 0
+            events.keyUp = false
+            this.name = 'nyama_die_up_star';
+            this.sprite = game.images[this.name].sprite;
+            game.sounds[6].sound.play()
+          }
+        }
+      }
+
       moveUp = () => {
         if (this.isFall) return;
-
+        this.Jump()
+        /*
         this.isJump = true;
-        if (this.pos.y > 0) {
-          this.pos.y -= this.step_jump;
-        } else {
-          this.isFall
-          events.keyUp = false
-        }
+          
+            if (this.pos.y > 0) {
+              this.pos.y -= this.step_jump;
+              this.name = 'nyama_jump';
+              this.sprite = game.images[this.name].sprite;
+            } else {
+              this.isFall
+              events.keyUp = false
+              this.name = 'nyama';
+              this.sprite = game.images[this.name].sprite;
+          }
+              */
 
       }
 
       fall = () => {
         this.isFall = true
+        this.jump_delay_counter = 0
         if (this.pos.y * game.ks < (game.height - this.height * game.ks)) {
           this.pos.y += this.step_fall;
+
         } else {
           this.isJump = false
+          this.set_normal();
+          //game.sounds[4].sound.
           this.isFall = false
         }
       }
@@ -176,7 +215,7 @@
 
 
       brick = () => {
-        this.brick_delay_counter ++;
+        this.brick_delay_counter++;
         if (!this.is_brick) {
           this.is_brick = true;
           this.name = 'nyama_down_star';
@@ -188,7 +227,7 @@
           this.brick_delay_counter = 0;
           this.set_normal()
         }
-      
+
 
       }
       bang = () => {
