@@ -79,20 +79,24 @@
         this.step_go = 10;
         this.step_jump = 5;
         this.step_fall = 20
+        this.step_fly = 20
         this.direct = 'left';
         this.isJump = false;
         this.isFall = false;
+        this.isFly_left = false
+        this.isFly_right = false
         this.is_eat_good = false;
         this.is_eat_bad = false;
         this.is_brick = false;
-        this.is_bang = false
-        this.is_active = true
+        this.is_bang = false;
+        this.is_active = true;
         this.jump_delay_counter = 0;
         this.eat_good_delay_counter = 0;
         this.eat_bad_delay_counter = 0;
         this.brick_delay_counter = 0;
-        this.bang_delay_counter = 0
-        
+        this.bang_delay_counter = 0;
+        this.fly_delay_counter = 0;
+
       }
 
       moveLeft = () => {
@@ -122,7 +126,7 @@
           this.sprite = game.images[this.name].sprite;
         }
         if (this.jump_delay_counter > 10) {
-          
+
           this.name = 'nyama_jump';
           this.sprite = game.images[this.name].sprite;
           if (this.pos.y > 0) {
@@ -249,18 +253,28 @@
         if (this.bang_delay_counter > 20) {
           this.name = 'nyama_bang';
           this.sprite = game.images[this.name].sprite;
-        if (this.bang_delay_counter > 30) {
-          this.pos.y = (game.height - this.height * game.ks) / game.ks - 2;
-          this.name = 'nyama_die';
-          this.sprite = game.images[this.name].sprite;
-        if (this.bang_delay_counter > 300) {
-          this.is_bang = false;
-          this.is_active = true
-          this.set_normal();
-          this.bang_delay_counter = 0;
-        }    
+          if (this.bang_delay_counter > 30) {
+            this.pos.y = (game.height - this.height * game.ks) / game.ks - 2;
+            this.name = 'nyama_die';
+            this.sprite = game.images[this.name].sprite;
+            if (this.bang_delay_counter > 300) {
+              this.is_bang = false;
+              this.is_active = true
+              this.set_normal();
+              this.bang_delay_counter = 0;
+            }
+          }
         }
+      }
+      bang_fly_left = () => {
+        if (this.pos.x >= 0) {
+          this.pos.y -= this.step_fly
+          this.pos.x -= this.step_fly 
         }
+                
+      }
+      bang_fly_right = () => {
+        console.log('right')
       }
     }
 
@@ -278,7 +292,7 @@
         this.isActive = false;
         this.hide_delay_counter = 0;
         this.fall_end_y = 0;
-
+        this.isBang = false
       }
 
       start_new() {
@@ -297,7 +311,7 @@
           } else {
             this.fall_end_y = game.height - this.height * game.ks;
           }
-          this.fall_end_y = game.height - (this.height + nyama.height) * game.ks;
+          //this.fall_end_y = game.height - (this.height + nyama.height) * game.ks;b
 
         }, Math.random() * 5000);
       }
@@ -330,7 +344,6 @@
 
           }
 
-
         } else {
           if (this.isActive) {
             if (this.name !== 'bomb') {
@@ -342,16 +355,40 @@
                 this.start_new()
               }
             } else {
-              this.sprite = game.images['bang_image'].sprite;
-              this.hide_delay_counter++;
-              if (this.hide_delay_counter === 20) {
-                this.isActive = false;
-                this.hide_delay_counter = 0
-                this.start_new()
+              const gift_x = (this.pos.x + this.width / 2) * game.ks;
+              const gift_y = (this.pos.y + this.height / 2) * game.ks;
+              const nyama_x = (nyama.pos.x + nyama.width / 2) * game.ks;
+              const nyama_y = (nyama.pos.y + nyama.height / 2) * game.ks;
+              if ((Math.abs(gift_x - nyama_x) < this.width * game.ks * 2)
+                && (Math.abs(gift_y - nyama_y) < this.height * game.ks * 2)) {
+                if (gift_x - nyama_x < 0) {
+                  nyama.isFly_right = true;
+                  nyama.bang_fly_right()
+                } else {
+                  nyama.isFly_left = true;
+                  nyama.bang_fly_left()
+                }
+
+              } else {
+                this.bang()
               }
             }
-
           }
+        }
+      }
+
+      bang = () => {
+        this.hide_delay_counter++;
+        if (!this.isBang) {
+          this.pos.y -= 100;
+          this.sprite = game.images['bang_image'].sprite;
+          this.isBang = true
+        }  
+        if (this.hide_delay_counter === 20) {
+          this.isBang = false
+          this.isActive = false
+          this.hide_delay_counter = 0
+          this.start_new()
         }
       }
 
@@ -510,11 +547,18 @@
         else if (nyama.isJump) {
           nyama.fall();
         }
+        if (nyama.isFly_left) {
+          nyama.bang_fly_left()
+        }
+
         this.gifts_sprites.forEach((item => {
 
-          if (item.isActive) {
+          if (item.isActive && !item.isBang) {
             item.fall();
+          } else if (item.isBang) {
+            item.bang();
           }
+
         }))
 
 
