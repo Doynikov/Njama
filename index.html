@@ -1,0 +1,660 @@
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <style>
+    body {
+      background-color: black;
+    }
+
+    #canvas-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #canvas {
+      background-image: url('assets/images/bg.jpg');
+      background-size: contain;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="canvas-wrapper">
+    <canvas id="canvas" width="1300" height="731"></canvas>
+  </div>
+  <script type="text/javascript">
+
+    class Events {
+      constructor() {
+        this.keyUp = false;
+        this.keyLeft = false;
+        this.keyRight = false;
+      }
+
+      handleKeyDown = (e) => {
+        const code = e.keyCode;
+        switch (code) {
+          case 38:
+            if (!nyama.isFall) {
+              this.keyUp = true;
+            }
+            break;
+          case 37:
+            this.keyLeft = true;
+            break;
+          case 39:
+            this.keyRight = true;
+            break;
+        }
+      }
+
+      handleKeyUp = (e) => {
+        const code = e.keyCode;
+        switch (code) {
+          case 38:
+            this.keyUp = false;
+            break;
+          case 37:
+            this.keyLeft = false;
+            break;
+          case 39:
+            this.keyRight = false;
+            break;
+        }
+      }
+    }
+
+    class Nyama {
+      constructor() {
+        this.name = 'nyama';
+        this.sprite = game.images[this.name].sprite;
+        this.width = this.sprite.width;
+        this.height = this.sprite.height;
+        this.pos = { x: game.center.x, y: game.height - this.height };
+        this.step_go = 10;
+        this.step_jump = 5;
+        this.step_fall = 20
+        this.step_fly = 20
+        this.direct = 'left';
+        this.isJump = false;
+        this.isFall = false;
+        this.isFly_left = false
+        this.isFly_right = false
+        this.is_eat_good = false;
+        this.is_eat_bad = false;
+        this.is_brick = false;
+        this.is_bang = false;
+        this.is_active = true;
+        this.jump_delay_counter = 0;
+        this.eat_good_delay_counter = 0;
+        this.eat_bad_delay_counter = 0;
+        this.brick_delay_counter = 0;
+        this.bang_delay_counter = 0;
+        this.fly_delay_counter = 0;
+
+      }
+
+      moveLeft = () => {
+        if (!this.is_active) return;
+        this.direct = 'left'
+        if (this.pos.x > 0) {
+          this.pos.x -= this.step_go;
+        }
+      }
+
+      moveRight = () => {
+        if (!this.is_active) return;
+        this.direct = 'right'
+        if (this.pos.x * game.ks < (game.width - this.width * game.ks)) {
+          this.pos.x += this.step_go;
+        }
+      }
+
+      Jump = () => {
+        if (!this.is_active) return;
+        if (this.isFall) return;
+        this.jump_delay_counter++
+
+        if (!this.isJump) {
+          this.isJump = true;
+          this.name = 'nyama_press';
+          this.sprite = game.images[this.name].sprite;
+        }
+        if (this.jump_delay_counter > 10) {
+
+          this.name = 'nyama_jump';
+          this.sprite = game.images[this.name].sprite;
+          if (this.pos.y > 0) {
+            this.pos.y -= this.step_jump;
+          } else {
+            this.isFall = true
+            this.jump_delay_counter = 0
+            events.keyUp = false
+            this.name = 'nyama_die_up_star';
+            this.sprite = game.images[this.name].sprite;
+            game.sounds[6].sound.play()
+          }
+        }
+      }
+
+      moveUp = () => {
+        if (this.isFall) return;
+        this.Jump()
+        /*
+        this.isJump = true;
+          
+            if (this.pos.y > 0) {
+              this.pos.y -= this.step_jump;
+              this.name = 'nyama_jump';
+              this.sprite = game.images[this.name].sprite;
+            } else {
+              this.isFall
+              events.keyUp = false
+              this.name = 'nyama';
+              this.sprite = game.images[this.name].sprite;
+          }
+              */
+
+      }
+
+      fall = () => {
+        this.isFall = true
+        this.jump_delay_counter = 0
+        if (this.pos.y * game.ks < (game.height - this.height * game.ks)) {
+          this.pos.y += this.step_fall;
+
+        } else {
+          this.isJump = false
+          this.set_normal();
+          game.sounds[6].sound.pause()
+          game.sounds[6].sound.currentTime = 0
+          this.isFall = false
+          this.pos.y = (game.height - this.height * game.ks) / game.ks;
+        }
+      }
+
+      update = () => {
+        if (nyama.direct === 'right') {
+          game.ctx.translate(this.pos.x * game.ks + this.width * game.ks, this.pos.y * game.ks);
+          game.ctx.scale(game.ks * -1, game.ks);
+        } else {
+          game.ctx.translate(this.pos.x * game.ks, this.pos.y * game.ks);
+          game.ctx.scale(game.ks, game.ks);
+        }
+        game.ctx.drawImage(this.sprite, 0, 0);
+      }
+      set_normal = () => {
+        this.name = 'nyama'
+        this.sprite = game.images[this.name].sprite;
+      }
+
+      eat_good = () => {
+        this.eat_good_delay_counter++;
+        if (!this.is_eat_good) {
+          this.is_eat_good = true;
+          this.name = 'nyama_njam';
+          this.sprite = game.images[this.name].sprite;
+          game.sounds[4].sound.play()
+        }
+        if (this.eat_good_delay_counter > 300) {
+          this.is_eat_good = false;
+          this.eat_good_delay_counter = 0;
+          this.set_normal()
+        }
+
+      }
+
+      eat_bad = () => {
+        this.eat_bad_delay_counter++;
+        if (!this.is_eat_bad) {
+          this.is_eat_bad = true;
+          this.name = 'nyama_red';
+          this.sprite = game.images[this.name].sprite;
+          game.sounds[3].sound.play()
+        }
+        if (this.eat_bad_delay_counter > 50) {
+          this.is_eat_bad = false;
+          this.eat_bad_delay_counter = 0;
+          this.set_normal()
+        }
+      }
+
+
+      brick = () => {
+        this.brick_delay_counter++;
+        if (!this.is_brick) {
+          this.is_brick = true;
+          this.name = 'nyama_down_star';
+          this.sprite = game.images[this.name].sprite;
+          game.sounds[5].sound.play()
+        }
+        if (this.brick_delay_counter > 50) {
+          this.is_brick = false;
+          this.brick_delay_counter = 0;
+          this.set_normal()
+        }
+
+
+      }
+      bang = () => {
+        this.bang_delay_counter++;
+        if (!this.is_bang) {
+          this.is_active = false
+          this.is_bang = true;
+          this.name = 'bang_image';
+          this.sprite = game.images[this.name].sprite;
+          game.sounds[0].sound.play()
+        }
+        if (this.bang_delay_counter > 20) {
+          this.name = 'nyama_bang';
+          this.sprite = game.images[this.name].sprite;
+          if (this.bang_delay_counter > 30) {
+            this.pos.y = (game.height - this.height * game.ks) / game.ks - 2;
+            this.name = 'nyama_die';
+            this.sprite = game.images[this.name].sprite;
+            if (this.bang_delay_counter > 300) {
+              this.is_bang = false;
+              this.is_active = true
+              this.set_normal();
+              this.bang_delay_counter = 0;
+            }
+          }
+        }
+      }
+      
+      bang_fly_left = () => {
+        if (this.pos.x >= 0) {
+          this.is_active = false
+          this.direct = 'left'
+          this.pos.y -= this.step_fly * 0.5 
+          this.pos.x -= this.step_fly 
+        } else {
+          if (!this.is_wall_left) {
+            this.is_wall_left = true
+            this.pos.x = 0;
+            this.name = 'nyama_wall_left';
+            this.sprite = game.images[this.name].sprite;
+          }  
+          if (this.pos.y * game.ks < (game.height - this.height * game.ks)) {
+            this.pos.y += 5;
+          } else {
+            this.isFly_left = false;
+            this.is_wall_left = false;
+            this.is_active = true
+            this.set_normal();
+            game.sounds[6].sound.pause()
+            game.sounds[6].sound.currentTime = 0
+            this.pos.y = (game.height - this.height * game.ks) / game.ks;
+          }  
+        }       
+      }
+
+      bang_fly_right = () => {
+        if (this.pos.x <= game.width) {
+          this.is_active = false
+          this.direct = 'right'
+          this.pos.y -= this.step_fly * 0.5
+          this.pos.x += this.step_fly 
+        } else {
+          if (!this.is_wall_right) {
+            this.is_wall_right = true
+            this.pos.x = game.width;
+            this.name = 'nyama_wall_left';
+            this.sprite = game.images[this.name].sprite;
+          }  
+          if (this.pos.y * game.ks < (game.height - this.height * game.ks)) {
+            this.pos.y += 5;
+          } else {
+            this.isFly_right = false;
+            this.is_wall_right = false;
+            this.is_active = true
+            this.set_normal();
+            game.sounds[6].sound.pause()
+            game.sounds[6].sound.currentTime = 0
+            this.pos.y = (game.height - this.height * game.ks) / game.ks;
+          }  
+        }       
+      }
+    }
+
+
+
+
+    class Gifts {
+      constructor() {
+        this.name = '';
+        this.sprite = null;
+        this.width = null;
+        this.height = null;
+        this.pos = { x: 0, y: 0 };
+        this.step = 4;
+        this.isActive = false;
+        this.hide_delay_counter = 0;
+        this.fall_end_y = 0;
+        this.isBang = false
+      }
+
+      start_new() {
+        setTimeout(() => {
+          this.name = game.gifts_images[Math.round(Math.random() * (game.gifts_images.length - 1))]
+          this.name = 'bomb'
+          this.sprite = game.images[this.name].sprite;
+
+          this.pos.x = Math.random() * game.width_default;
+          this.pos.y = 0
+          this.isActive = true;
+          this.width = this.sprite.width;
+          this.height = this.sprite.height;
+          if (this.name !== 'bomb') {
+            this.fall_end_y = Math.random() * game.height - this.height * game.ks;
+          } else {
+            this.fall_end_y = game.height - this.height * game.ks;
+          }
+          //this.fall_end_y = game.height - (this.height + nyama.height) * game.ks;b
+
+        }, Math.random() * 5000);
+      }
+
+      fall = () => {
+        if (this.pos.y * game.ks < this.fall_end_y) {
+          this.pos.y += this.step * game.ks;
+          const gift_x = (this.pos.x + this.width / 2) * game.ks;
+          const gift_y = (this.pos.y + this.height / 2) * game.ks;
+          const nyama_x = (nyama.pos.x + nyama.width / 2) * game.ks;
+          const nyama_y = (nyama.pos.y + nyama.height / 2) * game.ks;
+
+          if ((Math.abs(gift_x - nyama_x) < this.width * game.ks / 2)
+            && (Math.abs(gift_y - nyama_y) < this.height * game.ks / 2)
+            && ((gift_x - nyama_x < 0 && nyama.direct === 'left')
+              || (gift_x - nyama_x > 0 && nyama.direct === 'right')
+              || Math.abs(gift_x - nyama_x) < 10)) {
+            //console.log('sdjaodjoa', gift_x, gift_y, nyama_x, nyama_y)
+            this.isActive = false;
+            this.start_new();
+            if (this.name === 'cake' || this.name === 'candy_green') {
+              nyama.eat_good();
+            } else if (this.name === 'candy_red') {
+              nyama.eat_bad();
+            } else if (this.name === 'brick') {
+              nyama.brick();
+            } else {
+              nyama.bang();
+            }
+
+          }
+
+        } else {
+          if (this.isActive) {
+            if (this.name !== 'bomb') {
+              this.sprite = game.images['gift_hide'].sprite;
+              this.hide_delay_counter++;
+              if (this.hide_delay_counter === 20) {
+                this.isActive = false;
+                this.hide_delay_counter = 0
+                this.start_new()
+              }
+            } else {
+              const gift_x = (this.pos.x + this.width / 2) * game.ks;
+              const gift_y = (this.pos.y + this.height / 2) * game.ks;
+              const nyama_x = (nyama.pos.x + nyama.width / 2) * game.ks;
+              const nyama_y = (nyama.pos.y + nyama.height / 2) * game.ks;
+              if ((Math.abs(gift_x - nyama_x) < this.width * game.ks * 2)
+                && (Math.abs(gift_y - nyama_y) < this.height * game.ks * 2)) {
+                if (gift_x - nyama_x < 0) {
+                  this.isActive = false;
+                  this.hide_delay_counter = 0
+                  this.start_new()
+                  nyama.isFly_right = true;
+                  nyama.bang_fly_right()
+                } else {
+                  this.isActive = false;
+                  this.hide_delay_counter = 0
+                  this.start_new()
+                  nyama.isFly_left = true;
+                  nyama.bang_fly_left()
+                }
+
+              } else {
+                this.bang()
+              }
+            }
+          }
+        }
+      }
+
+      bang = () => {
+        this.hide_delay_counter++;
+        if (!this.isBang) {
+          this.pos.y -= 100;
+          this.sprite = game.images['bang_image'].sprite;
+          this.isBang = true
+        }  
+        if (this.hide_delay_counter === 20) {
+          this.isBang = false
+          this.isActive = false
+          this.hide_delay_counter = 0
+          this.start_new()
+        }
+      }
+
+      update = () => {
+        game.ctx.save();
+        game.ctx.translate(this.pos.x * game.ks, this.pos.y * game.ks);
+        game.ctx.scale(game.ks, game.ks);
+        game.ctx.drawImage(this.sprite, 0, 0);
+        game.ctx.restore();
+      }
+    }
+
+
+
+
+    class Game {
+      constructor() {
+        this.canvas = document.getElementsByTagName('canvas')[0];
+        this.ctx = this.canvas.getContext('2d');
+        this.width = canvas.width;
+        this.height = canvas.height;
+
+        this.width_default = this.width;
+        this.height_default = this.height;
+        this.k = this.height / this.width;
+        this.ks = 1;
+
+        this.images = {
+          bg: { name: 'bg', src: 'assets/images/bg.jpg' },
+          nyama: { name: 'nyama', src: 'assets/images/nyama.png' },
+          nyama_bang: { name: 'nyama_bang', src: 'assets/images/nyama_bang.png' },
+          nyama_die: { name: 'nyama_die', src: 'assets/images/nyama_die.png' },
+          nyama_red: { name: 'nyama_red', src: 'assets/images/nyama_red.png' },
+          nyama_die_dn: { name: 'nyama_die_dn ', src: 'assets/images/nyama_die_dn.png' },
+          bang_image: { name: 'bang_image', src: 'assets/images/bang.png' },
+          nyama_njam: { name: 'nyama_njam', src: 'assets/images/nyama_njam.png' },
+          nyama_press: { name: 'nyama_press', src: 'assets/images/nyama_press.png' },
+          nyama_jump: { name: 'nyama_jump', src: 'assets/images/nyama_fly.png' },
+          gift_hide: { name: 'gift_hide', src: 'assets/images/gift_hide.png' },
+          nyama_wall_left: { name: 'nyama_wall_left', src: 'assets/images/nyama_wall_left.png' },
+          nyama_wall_right: { name: 'nyama_wall_right', src: 'assets/images/nyama_wall_right.png' },
+          nyama_die_up_star: { name: 'nyama_die_up_star', src: 'assets/images/nyama_die_up_star.png' },
+          nyama_down_star: { name: 'nyama_down_star', src: 'assets/images/nyama_down_star.png' },
+          intro_image: { name: 'intro_image', src: 'assets/images/intro.png' },
+          rat_image_l: { name: 'rat_image_l', src: 'assets/images/rat_big_l.png' },
+          rat_image_r: { name: 'rat_image_r', src: 'assets/images/rat_big_r.png' },
+          rat_die: { name: 'rat_die', src: 'assets/images/rat_die.png' },
+          rat_break: { name: 'rat_break', src: 'assets/images/rat_break.png' },
+          nyama_blood_1: { name: 'nyama_blood_1', src: 'assets/images/nyama_blood_1.png' },
+          nyama_blood_2: { name: 'nyama_blood_2', src: 'assets/images/nyama_blood_2.png' },
+          bomb: { name: 'bomb', src: 'assets/images/bomb.png' },
+          brick: { name: 'brick', src: 'assets/images/brick.png' },
+          cake: { name: 'cake', src: 'assets/images/cake.png' },
+          candy_green: { name: 'candy_green', src: 'assets/images/candy_green.png' },
+          candy_red: { name: 'candy_red', src: 'assets/images/candy_red.png' },
+        };
+
+        this.gifts_images = [
+          'bomb', 'brick', 'cake', 'candy_red', 'candy_green'
+        ];
+        this.gifts_sprites = [];
+
+        this.imagesStillLoading = Object.keys(this.images).length;
+
+        this.sounds = [
+          { name: 'bang_snd', src: 'assets/sounds/bang.mp3' },
+          { name: 'wall_fall_snd', src: 'assets/sounds/wall_fall.mp3' },
+          { name: 'wall_hit_snd', src: 'assets/sounds/wall_hit.mp3' },
+          { name: 'fu_snd ', src: 'assets/sounds/fu.mp3' },
+          { name: 'eat_snd', src: 'assets/sounds/eat.mp3' },
+          { name: 'boom_dzin_snd', src: 'assets/sounds/boom-dzin.mp3' },
+          { name: 'boom_up_down_snd', src: 'assets/sounds/boom-up-down.mp3' },
+          { name: 'rat_eat_snd', src: 'assets/sounds/rat_eat.mp3' },
+          { name: 'rat_cry_snd', src: 'assets/sounds/rat_cry.mp3' },
+        ]
+      };
+
+      get center() {
+        return {
+          x: this.canvas.width / 2,
+          y: this.canvas.height / 2,
+        }
+      }
+
+      loadImages = () => {
+        for (const key in this.images) {
+          let img = new Image();
+          img.addEventListener('load', (event) => {
+            this.imagesStillLoading--;
+          });
+          img.src = this.images[key].src;
+          this.images[key].sprite = img;
+          this.images[key].name = key;
+        }
+      }
+
+      loadsounds = () => {
+        for (var i = 0; i < this.sounds.length; i++) {
+          this.sounds[i].sound = new Audio();
+          this.sounds[i].sound.src = this.sounds[i].src;
+        }
+      }
+
+      resize = () => {
+        const h = window.innerHeight;
+        const w = window.innerWidth;
+        this.width = w;
+        this.height = w * this.k;
+        if (this.height > h) {
+          this.height = h;
+          this.width = h / this.k;
+        }
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this.ks = this.width / this.width_default;
+
+      }
+
+      update = () => {
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        if (nyama.is_eat_good) {
+          nyama.eat_good();
+        }
+        if (nyama.is_eat_bad) {
+          nyama.eat_bad();
+        }
+        if (nyama.is_brick) {
+          nyama.brick();
+        }
+        if (nyama.is_bang) {
+          nyama.bang();
+        }
+        this.ctx.save();
+        nyama.update()
+        this.ctx.restore();
+
+
+        this.gifts_sprites.forEach((item => {
+
+          if (item.isActive) {
+            item.update();
+          }
+        }))
+
+      }
+
+      mainLoop = () => {
+        if (events.keyLeft) {
+          nyama.moveLeft();
+        } else if (events.keyRight) {
+          nyama.moveRight();
+        }
+        if (events.keyUp) {
+          nyama.moveUp();
+        }
+        else if (nyama.isJump) {
+          nyama.fall();
+        }
+        if (nyama.isFly_left) {
+          nyama.bang_fly_left()
+        }
+
+        if (nyama.isFly_right) {
+          nyama.bang_fly_right()
+        }
+
+        this.gifts_sprites.forEach((item => {
+
+          if (item.isActive && !item.isBang) {
+            item.fall();
+          } else if (item.isBang) {
+            item.bang();
+          }
+
+        }))
+
+
+
+        this.update();
+
+        window.setTimeout(game.mainLoop, 1000 / 60);
+      }
+
+      start = () => {
+        window.addEventListener('resize', (event) => {
+          this.resize()
+        });
+
+        window.requestAnimationFrame(this.resize);
+        for (let i = 0; i < 4; i++) {
+          const spr = this.gifts_sprites.push(new Gifts);
+          setTimeout(() => {
+            this.gifts_sprites[i].start_new();
+          }, 500
+          )
+
+        }
+        this.mainLoop();
+
+      }
+    }
+
+    events = new Events;
+    window.onkeydown = events.handleKeyDown;
+    window.onkeyup = events.handleKeyUp;
+
+    game = new Game;
+    game.loadImages();
+    game.loadsounds();
+
+    window.onload = function () {
+      nyama = new Nyama;
+      game.start();
+    }
+
+  </script>
+</body>
+
+</html>
