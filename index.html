@@ -269,42 +269,50 @@
       
       bang_fly_left = () => {
         if (this.pos.x >= 0) {
+          game.sounds[1].sound.play()
           this.is_active = false
           this.direct = 'left'
           this.pos.y -= this.step_fly * 0.5 
           this.pos.x -= this.step_fly 
         } else {
           if (!this.is_wall_left) {
+            game.sounds[1].sound.pause()
+            game.sounds[1].sound.currentTime = 0
+            game.sounds[2].sound.play()
             this.is_wall_left = true
             this.pos.x = 0;
             this.name = 'nyama_wall_left';
             this.sprite = game.images[this.name].sprite;
           }  
           if (this.pos.y * game.ks < (game.height - this.height * game.ks)) {
+            game.sounds[1].sound.pause()
+            game.sounds[1].sound.currentTime = 0
             this.pos.y += 5;
           } else {
             this.isFly_left = false;
             this.is_wall_left = false;
             this.is_active = true
             this.set_normal();
-            game.sounds[6].sound.pause()
-            game.sounds[6].sound.currentTime = 0
             this.pos.y = (game.height - this.height * game.ks) / game.ks;
           }  
         }       
       }
 
       bang_fly_right = () => {
-        if (this.pos.x <= game.width) {
+        if (this.pos.x * game.ks < (game.width - this.width * game.ks)) {
+          game.sounds[1].sound.play()
           this.is_active = false
-          this.direct = 'right'
+          this.direct = 'left'
           this.pos.y -= this.step_fly * 0.5
           this.pos.x += this.step_fly 
         } else {
           if (!this.is_wall_right) {
+            game.sounds[1].sound.pause()
+            game.sounds[1].sound.currentTime = 0
+            game.sounds[2].sound.play()
             this.is_wall_right = true
-            this.pos.x = game.width;
-            this.name = 'nyama_wall_left';
+            //this.pos.x = game.width;
+            this.name = 'nyama_wall_right';
             this.sprite = game.images[this.name].sprite;
           }  
           if (this.pos.y * game.ks < (game.height - this.height * game.ks)) {
@@ -314,8 +322,8 @@
             this.is_wall_right = false;
             this.is_active = true
             this.set_normal();
-            game.sounds[6].sound.pause()
-            game.sounds[6].sound.currentTime = 0
+            //game.sounds[2].sound.pause()
+            //game.sounds[2].sound.currentTime = 0
             this.pos.y = (game.height - this.height * game.ks) / game.ks;
           }  
         }       
