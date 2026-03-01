@@ -407,6 +407,7 @@
                 this.start_new()
               }
             } else {
+              this.bang()
               const gift_x = (this.pos.x + this.width / 2) * game.ks;
               const gift_y = (this.pos.y + this.height / 2) * game.ks;
               const nyama_x = (nyama.pos.x + nyama.width / 2) * game.ks;
@@ -414,11 +415,10 @@
               if ((Math.abs(gift_x - nyama_x) < this.width * game.ks * 2)
                 && (Math.abs(gift_y - nyama_y) < this.height * game.ks * 2)) {
                 if (gift_x - nyama_x < 0) {
-                  this.isActive = false;
-                  this.hide_delay_counter = 0
-                  this.start_new()
+                  
                   nyama.isFly_right = true;
                   nyama.bang_fly_right()
+                  
                 } else {
                   this.isActive = false;
                   this.hide_delay_counter = 0
@@ -428,7 +428,7 @@
                 }
 
               } else {
-                this.bang()
+                //this.bang()
               }
             }
           }
