@@ -85,6 +85,16 @@
         return this.x + this.width;
       }
 
+      toBottomScreen = () => {        
+        this.y = game.height_default - this.height;
+      }
+      toRightScreen = () => {        
+        this.x = game.width_default - this.width;
+      }
+      toLeftScreen = () => {
+        this.x = 0;
+      }
+
       /*set name(value) {
         if (value.length < 4) {
           alert("Имя слишком короткое.");
@@ -139,8 +149,10 @@
         if (!this.is_active) return;
         this.direct = 'right'
         if (this.right < game.width_default) {
-          this.x += this.step_go;
-        }
+          this.x += this.step_go;        
+        } else {
+          this.toRightScreen();
+        } 
       }
 
       Jump = () => {
@@ -296,23 +308,23 @@
       }
       
       bang_fly_left = () => {
-        if (this.x >= 0) {
+        if (this.x > 0) {
           game.sounds[1].sound.play()
           this.is_active = false
-          this.direct = 'left'
           this.y -= this.step_fly * 0.5 
           this.x -= this.step_fly 
         } else {
           if (!this.is_wall_left) {
+            this.direct = 'left'
             game.sounds[1].sound.pause()
             game.sounds[1].sound.currentTime = 0
             game.sounds[2].sound.play()
             this.is_wall_left = true
-            this.x = 0;
+            this.toLeftScreen();
             this.name = 'nyama_wall_left';
             this.sprite = game.images[this.name].sprite;
           }  
-          if (this.y  < game.height_default - this.height ) {
+          if (this.bottom < game.height_default) {
             game.sounds[1].sound.pause()
             game.sounds[1].sound.currentTime = 0
             this.y += 5;
@@ -321,38 +333,36 @@
             this.is_wall_left = false;
             this.is_active = true
             this.set_normal();
-            this.y = game.height_default - this.height;
+            this.toBottomScreen();
           }  
         }       
       }
 
       bang_fly_right = () => {
-        if (this.x < game.width_default - this.width ) {
+        if (this.right < game.width_default) {
           game.sounds[1].sound.play()
           this.is_active = false
-          this.direct = 'left'
           this.y -= this.step_fly * 0.5
           this.x += this.step_fly 
         } else {
           if (!this.is_wall_right) {
+            this.toRightScreen();
+            this.direct = 'left'
             game.sounds[1].sound.pause()
             game.sounds[1].sound.currentTime = 0
             game.sounds[2].sound.play()
             this.is_wall_right = true
-            //this.x = game.width_default;
             this.name = 'nyama_wall_right';
             this.sprite = game.images[this.name].sprite;
           }  
-          if (this.y < game.height_default - this.height ) {
+          if (this.bottom < game.height_default) {
             this.y += 5;
           } else {
             this.isFly_right = false;
             this.is_wall_right = false;
             this.is_active = true
             this.set_normal();
-            //game.sounds[2].sound.pause()
-            //game.sounds[2].sound.currentTime = 0
-            this.y = game.height_default - this.height;
+            this.toBottomScreen();
           }  
         }       
       }
@@ -486,6 +496,7 @@
 
     class Game {
       constructor() {
+        this.live_counter = 4.5
         this.canvas = document.getElementsByTagName('canvas')[0];
         this.ctx = this.canvas.getContext('2d');
         this.width = canvas.width;
@@ -587,6 +598,13 @@
 
       }
 
+      drawCounter = () => {
+        const s = '♥'.repeat(3)
+        this.ctx.fillStyle = "red"
+        this.ctx.font = "60px arial"
+        this.ctx.fillText(s, 10, 60);
+      }
+
       update = () => {
         this.ctx.clearRect(0, 0, this.width, this.height);
         if (nyama.is_eat_good) {
@@ -602,7 +620,10 @@
           nyama.bang();
         }
         this.ctx.save();
-        nyama.update()
+        nyama.update();
+        this.ctx.restore();
+        this.ctx.save();
+        this.drawCounter();
         this.ctx.restore();
 
 
