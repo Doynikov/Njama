@@ -178,6 +178,7 @@
             this.name = 'nyama_die_up_star';
             this.sprite = game.images[this.name].sprite;
             game.sounds[6].sound.play()
+            game.live_counter -= 0.5
           }
         }
       }
@@ -236,13 +237,14 @@
       eat_good = () => {
         this.eat_good_delay_counter++;
         if (!this.is_eat_good) {
-          this.is_eat_good = true;
+          this.is_eat_good = true;          
           this.name = 'nyama_njam';
           this.sprite = game.images[this.name].sprite;
           game.sounds[4].sound.play()
         }
         if (this.eat_good_delay_counter > 300) {
           this.is_eat_good = false;
+          game.live_counter += 0.5
           this.eat_good_delay_counter = 0;
           this.set_normal()
         }
@@ -259,6 +261,7 @@
         }
         if (this.eat_bad_delay_counter > 50) {
           this.is_eat_bad = false;
+          game.live_counter -= 0.5
           this.eat_bad_delay_counter = 0;
           this.set_normal()
         }
@@ -275,6 +278,7 @@
         }
         if (this.brick_delay_counter > 50) {
           this.is_brick = false;
+          game.live_counter -= 0.5
           this.brick_delay_counter = 0;
           this.set_normal()
         }
@@ -300,6 +304,7 @@
             if (this.bang_delay_counter > 300) {
               this.is_bang = false;
               this.is_active = true
+              game.live_counter -- 
               this.set_normal();
               this.bang_delay_counter = 0;
             }
@@ -332,6 +337,7 @@
             this.isFly_left = false;
             this.is_wall_left = false;
             this.is_active = true
+            game.live_counter -= 0.5
             this.set_normal();
             this.toBottomScreen();
           }  
@@ -361,6 +367,7 @@
             this.isFly_right = false;
             this.is_wall_right = false;
             this.is_active = true
+            game.live_counter -= 0.5
             this.set_normal();
             this.toBottomScreen();
           }  
@@ -386,7 +393,7 @@
       start_new() {
         setTimeout(() => {
           this.name = game.gifts_images[Math.round(Math.random() * (game.gifts_images.length - 1))]
-          this.name = 'bomb'
+          //this.name = 'bomb'
           this.sprite = game.images[this.name].sprite;
 
           this.x = Math.random() * game.width_default;
@@ -600,17 +607,16 @@
 
       drawCounter = () => {
         let s = '♥'.repeat(Math.floor(this.live_counter))
+        this.ctx.shadowBlur=20;                    
+        this.ctx.shadowColor="black";
+        this.ctx.lineWidth = 3
         this.ctx.fillStyle = "red"
-        this.ctx.font = "60px serif"
-        this.ctx.fillText(s, 10, 60);  
+        this.ctx.strokeStyle = "red"
+        this.ctx.font = (60 * this.ks) + "px serif"
+        this.ctx.fillText(s, 10 * this.ks, 60 * this.ks);  
         if (!Number.isInteger(this.live_counter)) {
-          s += '♥';
-          this.ctx.strokeStyle = "red"
-          this.ctx.font = "60px serif"
-          this.ctx.lineWidth = 3
-          this.ctx.shadowBlur=20;
-          this.ctx.shadowColor="black";
-          this.ctx.strokeText(s, 10, 60);  
+          s += '♥';                           
+          this.ctx.strokeText(s, 10 * this.k, 60 * this.ks);  
         }
         
       }
