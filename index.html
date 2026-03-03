@@ -599,10 +599,20 @@
       }
 
       drawCounter = () => {
-        const s = '♥'.repeat(3)
+        let s = '♥'.repeat(Math.floor(this.live_counter))
         this.ctx.fillStyle = "red"
-        this.ctx.font = "60px arial"
-        this.ctx.fillText(s, 10, 60);
+        this.ctx.font = "60px serif"
+        this.ctx.fillText(s, 10, 60);  
+        if (!Number.isInteger(this.live_counter)) {
+          s += '♥';
+          this.ctx.strokeStyle = "red"
+          this.ctx.font = "60px serif"
+          this.ctx.lineWidth = 3
+          this.ctx.shadowBlur=20;
+          this.ctx.shadowColor="black";
+          this.ctx.strokeText(s, 10, 60);  
+        }
+        
       }
 
       update = () => {
