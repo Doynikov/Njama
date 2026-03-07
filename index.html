@@ -37,6 +37,7 @@
       }
 
       handleKeyDown = (e) => {
+        game.isGamePlay = true
         const code = e.keyCode;
         switch (code) {
           case 38:
@@ -85,10 +86,10 @@
         return this.x + this.width;
       }
 
-      toBottomScreen = () => {        
+      toBottomScreen = () => {
         this.y = game.height_default - this.height;
       }
-      toRightScreen = () => {        
+      toRightScreen = () => {
         this.x = game.width_default - this.width;
       }
       toLeftScreen = () => {
@@ -105,14 +106,14 @@
 
 
 
-    class Nyama extends Sprite{
+    class Nyama extends Sprite {
       constructor() {
         super();
         this.name = 'nyama';
         this.sprite = game.images[this.name].sprite;
         this.width = this.sprite.width;
         this.height = this.sprite.height;
-        this.x = game.width_default/2;
+        this.x = game.width_default / 2;
         this.y = game.height_default - this.height;
         this.step_go = 10;
         this.step_jump = 5;
@@ -149,10 +150,10 @@
         if (!this.is_active) return;
         this.direct = 'right'
         if (this.right < game.width_default) {
-          this.x += this.step_go;        
+          this.x += this.step_go;
         } else {
           this.toRightScreen();
-        } 
+        }
       }
 
       Jump = () => {
@@ -206,7 +207,7 @@
       fall = () => {
         this.isFall = true
         this.jump_delay_counter = 0
-        if (this.y  < game.height_default - this.height ) {
+        if (this.y < game.height_default - this.height) {
           this.y += this.step_fall;
 
         } else {
@@ -215,7 +216,7 @@
           game.sounds[6].sound.pause()
           game.sounds[6].sound.currentTime = 0
           this.isFall = false
-          this.y = game.height_default - this.height  ;
+          this.y = game.height_default - this.height;
         }
       }
 
@@ -237,7 +238,7 @@
       eat_good = () => {
         this.eat_good_delay_counter++;
         if (!this.is_eat_good) {
-          this.is_eat_good = true;          
+          this.is_eat_good = true;
           this.name = 'nyama_njam';
           this.sprite = game.images[this.name].sprite;
           game.sounds[4].sound.play()
@@ -298,26 +299,26 @@
           this.name = 'nyama_bang';
           this.sprite = game.images[this.name].sprite;
           if (this.bang_delay_counter > 30) {
-            this.y = game.height_default - this.height  - 2;
+            this.y = game.height_default - this.height - 2;
             this.name = 'nyama_die';
             this.sprite = game.images[this.name].sprite;
             if (this.bang_delay_counter > 300) {
               this.is_bang = false;
               this.is_active = true
-              game.live_counter -- 
+              game.live_counter--
               this.set_normal();
               this.bang_delay_counter = 0;
             }
           }
         }
       }
-      
+
       bang_fly_left = () => {
         if (this.x > 0) {
           game.sounds[1].sound.play()
           this.is_active = false
-          this.y -= this.step_fly * 0.5 
-          this.x -= this.step_fly 
+          this.y -= this.step_fly * 0.5
+          this.x -= this.step_fly
         } else {
           if (!this.is_wall_left) {
             this.direct = 'left'
@@ -328,7 +329,7 @@
             this.toLeftScreen();
             this.name = 'nyama_wall_left';
             this.sprite = game.images[this.name].sprite;
-          }  
+          }
           if (this.bottom < game.height_default) {
             game.sounds[1].sound.pause()
             game.sounds[1].sound.currentTime = 0
@@ -340,8 +341,8 @@
             game.live_counter -= 0.5
             this.set_normal();
             this.toBottomScreen();
-          }  
-        }       
+          }
+        }
       }
 
       bang_fly_right = () => {
@@ -349,7 +350,7 @@
           game.sounds[1].sound.play()
           this.is_active = false
           this.y -= this.step_fly * 0.5
-          this.x += this.step_fly 
+          this.x += this.step_fly
         } else {
           if (!this.is_wall_right) {
             this.toRightScreen();
@@ -360,7 +361,7 @@
             this.is_wall_right = true
             this.name = 'nyama_wall_right';
             this.sprite = game.images[this.name].sprite;
-          }  
+          }
           if (this.bottom < game.height_default) {
             this.y += 5;
           } else {
@@ -370,15 +371,15 @@
             game.live_counter -= 0.5
             this.set_normal();
             this.toBottomScreen();
-          }  
-        }       
+          }
+        }
       }
     }
 
 
 
 
-    class Gifts extends Sprite{
+    class Gifts extends Sprite {
       constructor() {
         super();
         this.name = '';
@@ -458,10 +459,10 @@
               if ((Math.abs(gift_x - nyama_x) < this.width * 2)
                 && (Math.abs(gift_y - nyama_y) < this.height * 2)) {
                 if (gift_x - nyama_x < 0) {
-                  
+
                   nyama.isFly_right = true;
                   nyama.bang_fly_right()
-                  
+
                 } else {
                   nyama.isFly_left = true;
                   nyama.bang_fly_left()
@@ -480,7 +481,7 @@
           this.sprite = game.images['bang_image'].sprite;
           this.isBang = true
           game.sounds[0].sound.play()
-        }  
+        }
         if (this.hide_delay_counter === 20) {
           this.isBang = false
           this.isActive = false
@@ -503,11 +504,12 @@
 
     class Game {
       constructor() {
-        this.live_counter = 4.5
+        this.live_counter = 0.5
         this.canvas = document.getElementsByTagName('canvas')[0];
         this.ctx = this.canvas.getContext('2d');
         this.width = canvas.width;
         this.height = canvas.height;
+        this.isGamePlay = false
 
         this.width_default = this.width;
         this.height_default = this.height;
@@ -605,20 +607,48 @@
 
       }
 
-      drawCounter = () => {
-        let s = '♥'.repeat(Math.floor(this.live_counter))
-        this.ctx.shadowBlur=20;                    
-        this.ctx.shadowColor="black";
+      game_over = () => {
+        console.log(this.ctx.fillText(l, (this.width - this.sprite.width * this.ks) / 2 + this.width / 6, (this.height - this.sprite.height * this.ks) / 2 + this.height / 4))
+        this.ctx.fillStyle = "white"
+        this.ctx.strokeStyle = "black"
         this.ctx.lineWidth = 3
+        const r = 'GAME OVER'
+        const l = 'НАЧАТЬ ЗАНОВО'
+        this.ctx.font = (60 * this.ks) + "px arial black"
+        this.ctx.fillText(r, (this.width - this.sprite.width * this.ks) / 2, (this.height - this.sprite.height * this.ks) / 2);
+        this.ctx.strokeText(r, (this.width - this.sprite.width * this.ks) / 2, (this.height - this.sprite.height * this.ks) / 2);
         this.ctx.fillStyle = "red"
-        this.ctx.strokeStyle = "red"
-        this.ctx.font = (60 * this.ks) + "px serif"
-        this.ctx.fillText(s, 10 * this.ks, 60 * this.ks);  
-        if (!Number.isInteger(this.live_counter)) {
-          s += '♥';                           
-          this.ctx.strokeText(s, 10 * this.k, 60 * this.ks);  
+        this.ctx.fillText(l, (this.width - this.sprite.width * this.ks) / 2 + this.width / 6, (this.height - this.sprite.height * this.ks) / 2 + this.height / 4);
+      }
+
+      drawCounter = () => {
+        if (this.live_counter <= 0) {
+          this.game_over();
+        } else {
+          let s = '♥'.repeat(Math.floor(this.live_counter))
+          this.ctx.shadowBlur = 20;
+          this.ctx.shadowColor = "black";
+          this.ctx.lineWidth = 3
+          this.ctx.fillStyle = "red"
+          this.ctx.strokeStyle = "red"
+          this.ctx.font = (60 * this.ks) + "px serif"
+          this.ctx.fillText(s, 10 * this.ks, 60 * this.ks);
+          if (!Number.isInteger(this.live_counter)) {
+            s += '♥';
+            this.ctx.strokeText(s, 10 * this.k, 60 * this.ks);
+          }
         }
-        
+      }
+      game_intro = () => {
+        this.name = 'intro_image'
+        this.sprite = game.images[this.name].sprite;
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.ctx.save();
+        this.ctx.translate((this.width - this.sprite.width * this.ks) / 2, (this.height - this.sprite.height * this.ks) / 2);
+        this.ctx.scale(this.ks, this.ks);
+
+        this.ctx.drawImage(this.sprite, 0, 0);
+        this.ctx.restore();
       }
 
       update = () => {
@@ -649,42 +679,45 @@
             item.update();
           }
         }))
-
       }
 
+
+
       mainLoop = () => {
-        if (events.keyLeft) {
-          nyama.moveLeft();
-        } else if (events.keyRight) {
-          nyama.moveRight();
-        }
-        if (events.keyUp) {
-          nyama.moveUp();
-        }
-        else if (nyama.isJump) {
-          nyama.fall();
-        }
-        if (nyama.isFly_left) {
-          nyama.bang_fly_left()
-        }
 
-        if (nyama.isFly_right) {
-          nyama.bang_fly_right()
-        }
-
-        this.gifts_sprites.forEach((item => {
-
-          if (item.isActive && !item.isBang) {
-            item.fall();
-          } else if (item.isBang) {
-            item.bang();
+        if (this.isGamePlay) {
+          if (events.keyLeft) {
+            nyama.moveLeft();
+          } else if (events.keyRight) {
+            nyama.moveRight();
+          }
+          if (events.keyUp) {
+            nyama.moveUp();
+          }
+          else if (nyama.isJump) {
+            nyama.fall();
+          }
+          if (nyama.isFly_left) {
+            nyama.bang_fly_left()
           }
 
-        }))
+          if (nyama.isFly_right) {
+            nyama.bang_fly_right()
+          }
 
+          this.gifts_sprites.forEach((item => {
 
+            if (item.isActive && !item.isBang) {
+              item.fall();
+            } else if (item.isBang) {
+              item.bang();
+            }
 
-        this.update();
+          }))
+          this.update();
+        } else {
+          this.game_intro()
+        }
 
         window.setTimeout(game.mainLoop, 1000 / 60);
       }
@@ -704,7 +737,6 @@
 
         }
         this.mainLoop();
-
       }
     }
 
