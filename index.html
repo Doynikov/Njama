@@ -37,6 +37,7 @@
       }
 
       handleKeyDown = (e) => {
+        game.isGamePlay = true
         const code = e.keyCode;
         switch (code) {
           case 38:
@@ -69,13 +70,51 @@
       }
     }
 
-    class Nyama {
+    class Sprite {
       constructor() {
+        this.x = 0;
+        this.y = 0;
+        this.sprite = null;
+        this.width = 0;
+        this.height = 0;
+
+      }
+      get bottom() {
+        return this.y + this.height;
+      }
+      get right() {
+        return this.x + this.width;
+      }
+
+      toBottomScreen = () => {
+        this.y = game.height_default - this.height;
+      }
+      toRightScreen = () => {
+        this.x = game.width_default - this.width;
+      }
+      toLeftScreen = () => {
+        this.x = 0;
+      }
+
+      /*set name(value) {
+        if (value.length < 4) {
+          alert("Имя слишком короткое.");
+          return;
+        }
+      }*/
+    }
+
+
+
+    class Nyama extends Sprite {
+      constructor() {
+        super();
         this.name = 'nyama';
         this.sprite = game.images[this.name].sprite;
         this.width = this.sprite.width;
         this.height = this.sprite.height;
-        this.pos = { x: game.center.x, y: game.height - this.height };
+        this.x = game.width_default / 2;
+        this.y = game.height_default - this.height;
         this.step_go = 10;
         this.step_jump = 5;
         this.step_fall = 20
@@ -102,16 +141,18 @@
       moveLeft = () => {
         if (!this.is_active) return;
         this.direct = 'left'
-        if (this.pos.x > 0) {
-          this.pos.x -= this.step_go;
+        if (this.x > 0) {
+          this.x -= this.step_go;
         }
       }
 
       moveRight = () => {
         if (!this.is_active) return;
         this.direct = 'right'
-        if (this.pos.x * game.ks < (game.width - this.width * game.ks)) {
-          this.pos.x += this.step_go;
+        if (this.right < game.width_default) {
+          this.x += this.step_go;
+        } else {
+          this.toRightScreen();
         }
       }
 
@@ -129,8 +170,8 @@
 
           this.name = 'nyama_jump';
           this.sprite = game.images[this.name].sprite;
-          if (this.pos.y > 0) {
-            this.pos.y -= this.step_jump;
+          if (this.y > 0) {
+            this.y -= this.step_jump;
           } else {
             this.isFall = true
             this.jump_delay_counter = 0
@@ -138,6 +179,7 @@
             this.name = 'nyama_die_up_star';
             this.sprite = game.images[this.name].sprite;
             game.sounds[6].sound.play()
+            game.live_counter -= 0.5
           }
         }
       }
@@ -148,8 +190,8 @@
         /*
         this.isJump = true;
           
-            if (this.pos.y > 0) {
-              this.pos.y -= this.step_jump;
+            if (this.y > 0) {
+              this.y -= this.step_jump;
               this.name = 'nyama_jump';
               this.sprite = game.images[this.name].sprite;
             } else {
@@ -165,8 +207,8 @@
       fall = () => {
         this.isFall = true
         this.jump_delay_counter = 0
-        if (this.pos.y * game.ks < (game.height - this.height * game.ks)) {
-          this.pos.y += this.step_fall;
+        if (this.y < game.height_default - this.height) {
+          this.y += this.step_fall;
 
         } else {
           this.isJump = false
@@ -174,16 +216,16 @@
           game.sounds[6].sound.pause()
           game.sounds[6].sound.currentTime = 0
           this.isFall = false
-          this.pos.y = (game.height - this.height * game.ks) / game.ks;
+          this.y = game.height_default - this.height;
         }
       }
 
       update = () => {
         if (nyama.direct === 'right') {
-          game.ctx.translate(this.pos.x * game.ks + this.width * game.ks, this.pos.y * game.ks);
+          game.ctx.translate(this.x * game.ks + this.width * game.ks, this.y * game.ks);
           game.ctx.scale(game.ks * -1, game.ks);
         } else {
-          game.ctx.translate(this.pos.x * game.ks, this.pos.y * game.ks);
+          game.ctx.translate(this.x * game.ks, this.y * game.ks);
           game.ctx.scale(game.ks, game.ks);
         }
         game.ctx.drawImage(this.sprite, 0, 0);
@@ -203,6 +245,7 @@
         }
         if (this.eat_good_delay_counter > 300) {
           this.is_eat_good = false;
+          game.live_counter += 0.5
           this.eat_good_delay_counter = 0;
           this.set_normal()
         }
@@ -219,6 +262,7 @@
         }
         if (this.eat_bad_delay_counter > 50) {
           this.is_eat_bad = false;
+          game.live_counter -= 0.5
           this.eat_bad_delay_counter = 0;
           this.set_normal()
         }
@@ -235,6 +279,7 @@
         }
         if (this.brick_delay_counter > 50) {
           this.is_brick = false;
+          game.live_counter -= 0.5
           this.brick_delay_counter = 0;
           this.set_normal()
         }
@@ -254,92 +299,91 @@
           this.name = 'nyama_bang';
           this.sprite = game.images[this.name].sprite;
           if (this.bang_delay_counter > 30) {
-            this.pos.y = (game.height - this.height * game.ks) / game.ks - 2;
+            this.y = game.height_default - this.height - 2;
             this.name = 'nyama_die';
             this.sprite = game.images[this.name].sprite;
             if (this.bang_delay_counter > 300) {
               this.is_bang = false;
               this.is_active = true
+              game.live_counter--
               this.set_normal();
               this.bang_delay_counter = 0;
             }
           }
         }
       }
-      
+
       bang_fly_left = () => {
-        if (this.pos.x >= 0) {
+        if (this.x > 0) {
           game.sounds[1].sound.play()
           this.is_active = false
-          this.direct = 'left'
-          this.pos.y -= this.step_fly * 0.5 
-          this.pos.x -= this.step_fly 
+          this.y -= this.step_fly * 0.5
+          this.x -= this.step_fly
         } else {
           if (!this.is_wall_left) {
+            this.direct = 'left'
             game.sounds[1].sound.pause()
             game.sounds[1].sound.currentTime = 0
             game.sounds[2].sound.play()
             this.is_wall_left = true
-            this.pos.x = 0;
+            this.toLeftScreen();
             this.name = 'nyama_wall_left';
             this.sprite = game.images[this.name].sprite;
-          }  
-          if (this.pos.y * game.ks < (game.height - this.height * game.ks)) {
+          }
+          if (this.bottom < game.height_default) {
             game.sounds[1].sound.pause()
             game.sounds[1].sound.currentTime = 0
-            this.pos.y += 5;
+            this.y += 5;
           } else {
             this.isFly_left = false;
             this.is_wall_left = false;
             this.is_active = true
+            game.live_counter -= 0.5
             this.set_normal();
-            this.pos.y = (game.height - this.height * game.ks) / game.ks;
-          }  
-        }       
+            this.toBottomScreen();
+          }
+        }
       }
 
       bang_fly_right = () => {
-        if (this.pos.x * game.ks < (game.width - this.width * game.ks)) {
+        if (this.right < game.width_default) {
           game.sounds[1].sound.play()
           this.is_active = false
-          this.direct = 'left'
-          this.pos.y -= this.step_fly * 0.5
-          this.pos.x += this.step_fly 
+          this.y -= this.step_fly * 0.5
+          this.x += this.step_fly
         } else {
           if (!this.is_wall_right) {
+            this.toRightScreen();
+            this.direct = 'left'
             game.sounds[1].sound.pause()
             game.sounds[1].sound.currentTime = 0
             game.sounds[2].sound.play()
             this.is_wall_right = true
-            //this.pos.x = game.width;
             this.name = 'nyama_wall_right';
             this.sprite = game.images[this.name].sprite;
-          }  
-          if (this.pos.y * game.ks < (game.height - this.height * game.ks)) {
-            this.pos.y += 5;
+          }
+          if (this.bottom < game.height_default) {
+            this.y += 5;
           } else {
             this.isFly_right = false;
             this.is_wall_right = false;
             this.is_active = true
+            game.live_counter -= 0.5
             this.set_normal();
-            //game.sounds[2].sound.pause()
-            //game.sounds[2].sound.currentTime = 0
-            this.pos.y = (game.height - this.height * game.ks) / game.ks;
-          }  
-        }       
+            this.toBottomScreen();
+          }
+        }
       }
     }
 
 
 
 
-    class Gifts {
+    class Gifts extends Sprite {
       constructor() {
+        super();
         this.name = '';
         this.sprite = null;
-        this.width = null;
-        this.height = null;
-        this.pos = { x: 0, y: 0 };
         this.step = 4;
         this.isActive = false;
         this.hide_delay_counter = 0;
@@ -350,34 +394,34 @@
       start_new() {
         setTimeout(() => {
           this.name = game.gifts_images[Math.round(Math.random() * (game.gifts_images.length - 1))]
-          this.name = 'bomb'
+          //this.name = 'bomb'
           this.sprite = game.images[this.name].sprite;
 
-          this.pos.x = Math.random() * game.width_default;
-          this.pos.y = 0
+          this.x = Math.random() * game.width_default;
+          this.y = 0
           this.isActive = true;
           this.width = this.sprite.width;
           this.height = this.sprite.height;
           if (this.name !== 'bomb') {
-            this.fall_end_y = Math.random() * game.height - this.height * game.ks;
+            this.fall_end_y = Math.random() * game.height_default - this.height;
           } else {
-            this.fall_end_y = game.height - this.height * game.ks;
+            this.fall_end_y = game.height_default - this.height;
           }
-          //this.fall_end_y = game.height - (this.height + nyama.height) * game.ks;b
+          //this.fall_end_y = game.height_default - this.height + nyama.height;
 
         }, Math.random() * 5000);
       }
 
       fall = () => {
-        if (this.pos.y * game.ks < this.fall_end_y) {
-          this.pos.y += this.step * game.ks;
-          const gift_x = (this.pos.x + this.width / 2) * game.ks;
-          const gift_y = (this.pos.y + this.height / 2) * game.ks;
-          const nyama_x = (nyama.pos.x + nyama.width / 2) * game.ks;
-          const nyama_y = (nyama.pos.y + nyama.height / 2) * game.ks;
+        if (this.y < this.fall_end_y) {
+          this.y += this.step;
+          const gift_x = this.x + this.width / 2;
+          const gift_y = this.y + this.height / 2;
+          const nyama_x = nyama.x + nyama.width / 2;
+          const nyama_y = nyama.y + nyama.height / 2;
 
-          if ((Math.abs(gift_x - nyama_x) < this.width * game.ks / 2)
-            && (Math.abs(gift_y - nyama_y) < this.height * game.ks / 2)
+          if ((Math.abs(gift_x - nyama_x) < this.width / 2)
+            && (Math.abs(gift_y - nyama_y) < this.height / 2)
             && ((gift_x - nyama_x < 0 && nyama.direct === 'left')
               || (gift_x - nyama_x > 0 && nyama.direct === 'right')
               || Math.abs(gift_x - nyama_x) < 10)) {
@@ -408,27 +452,22 @@
               }
             } else {
               this.bang()
-              const gift_x = (this.pos.x + this.width / 2) * game.ks;
-              const gift_y = (this.pos.y + this.height / 2) * game.ks;
-              const nyama_x = (nyama.pos.x + nyama.width / 2) * game.ks;
-              const nyama_y = (nyama.pos.y + nyama.height / 2) * game.ks;
-              if ((Math.abs(gift_x - nyama_x) < this.width * game.ks * 2)
-                && (Math.abs(gift_y - nyama_y) < this.height * game.ks * 2)) {
+              const gift_x = this.x + this.width / 2;
+              const gift_y = this.y + this.height / 2;
+              const nyama_x = nyama.x + nyama.width / 2;
+              const nyama_y = nyama.y + nyama.height / 2;
+              if ((Math.abs(gift_x - nyama_x) < this.width * 2)
+                && (Math.abs(gift_y - nyama_y) < this.height * 2)) {
                 if (gift_x - nyama_x < 0) {
-                  
+
                   nyama.isFly_right = true;
                   nyama.bang_fly_right()
-                  
+
                 } else {
-                  this.isActive = false;
-                  this.hide_delay_counter = 0
-                  this.start_new()
                   nyama.isFly_left = true;
                   nyama.bang_fly_left()
                 }
 
-              } else {
-                //this.bang()
               }
             }
           }
@@ -438,10 +477,11 @@
       bang = () => {
         this.hide_delay_counter++;
         if (!this.isBang) {
-          this.pos.y -= 100;
+          this.y -= 100;
           this.sprite = game.images['bang_image'].sprite;
           this.isBang = true
-        }  
+          game.sounds[0].sound.play()
+        }
         if (this.hide_delay_counter === 20) {
           this.isBang = false
           this.isActive = false
@@ -452,7 +492,7 @@
 
       update = () => {
         game.ctx.save();
-        game.ctx.translate(this.pos.x * game.ks, this.pos.y * game.ks);
+        game.ctx.translate(this.x * game.ks, this.y * game.ks);
         game.ctx.scale(game.ks, game.ks);
         game.ctx.drawImage(this.sprite, 0, 0);
         game.ctx.restore();
@@ -464,10 +504,12 @@
 
     class Game {
       constructor() {
+        this.live_counter = 0.5
         this.canvas = document.getElementsByTagName('canvas')[0];
         this.ctx = this.canvas.getContext('2d');
         this.width = canvas.width;
         this.height = canvas.height;
+        this.isGamePlay = false
 
         this.width_default = this.width;
         this.height_default = this.height;
@@ -565,6 +607,50 @@
 
       }
 
+      game_over = () => {
+        console.log(this.ctx.fillText(l, (this.width - this.sprite.width * this.ks) / 2 + this.width / 6, (this.height - this.sprite.height * this.ks) / 2 + this.height / 4))
+        this.ctx.fillStyle = "white"
+        this.ctx.strokeStyle = "black"
+        this.ctx.lineWidth = 3
+        const r = 'GAME OVER'
+        const l = 'НАЧАТЬ ЗАНОВО'
+        this.ctx.font = (60 * this.ks) + "px arial black"
+        this.ctx.fillText(r, (this.width - this.sprite.width * this.ks) / 2, (this.height - this.sprite.height * this.ks) / 2);
+        this.ctx.strokeText(r, (this.width - this.sprite.width * this.ks) / 2, (this.height - this.sprite.height * this.ks) / 2);
+        this.ctx.fillStyle = "red"
+        this.ctx.fillText(l, (this.width - this.sprite.width * this.ks) / 2 + this.width / 6, (this.height - this.sprite.height * this.ks) / 2 + this.height / 4);
+      }
+
+      drawCounter = () => {
+        if (this.live_counter <= 0) {
+          this.game_over();
+        } else {
+          let s = '♥'.repeat(Math.floor(this.live_counter))
+          this.ctx.shadowBlur = 20;
+          this.ctx.shadowColor = "black";
+          this.ctx.lineWidth = 3
+          this.ctx.fillStyle = "red"
+          this.ctx.strokeStyle = "red"
+          this.ctx.font = (60 * this.ks) + "px serif"
+          this.ctx.fillText(s, 10 * this.ks, 60 * this.ks);
+          if (!Number.isInteger(this.live_counter)) {
+            s += '♥';
+            this.ctx.strokeText(s, 10 * this.k, 60 * this.ks);
+          }
+        }
+      }
+      game_intro = () => {
+        this.name = 'intro_image'
+        this.sprite = game.images[this.name].sprite;
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.ctx.save();
+        this.ctx.translate((this.width - this.sprite.width * this.ks) / 2, (this.height - this.sprite.height * this.ks) / 2);
+        this.ctx.scale(this.ks, this.ks);
+
+        this.ctx.drawImage(this.sprite, 0, 0);
+        this.ctx.restore();
+      }
+
       update = () => {
         this.ctx.clearRect(0, 0, this.width, this.height);
         if (nyama.is_eat_good) {
@@ -580,7 +666,10 @@
           nyama.bang();
         }
         this.ctx.save();
-        nyama.update()
+        nyama.update();
+        this.ctx.restore();
+        this.ctx.save();
+        this.drawCounter();
         this.ctx.restore();
 
 
@@ -590,42 +679,45 @@
             item.update();
           }
         }))
-
       }
 
+
+
       mainLoop = () => {
-        if (events.keyLeft) {
-          nyama.moveLeft();
-        } else if (events.keyRight) {
-          nyama.moveRight();
-        }
-        if (events.keyUp) {
-          nyama.moveUp();
-        }
-        else if (nyama.isJump) {
-          nyama.fall();
-        }
-        if (nyama.isFly_left) {
-          nyama.bang_fly_left()
-        }
 
-        if (nyama.isFly_right) {
-          nyama.bang_fly_right()
-        }
-
-        this.gifts_sprites.forEach((item => {
-
-          if (item.isActive && !item.isBang) {
-            item.fall();
-          } else if (item.isBang) {
-            item.bang();
+        if (this.isGamePlay) {
+          if (events.keyLeft) {
+            nyama.moveLeft();
+          } else if (events.keyRight) {
+            nyama.moveRight();
+          }
+          if (events.keyUp) {
+            nyama.moveUp();
+          }
+          else if (nyama.isJump) {
+            nyama.fall();
+          }
+          if (nyama.isFly_left) {
+            nyama.bang_fly_left()
           }
 
-        }))
+          if (nyama.isFly_right) {
+            nyama.bang_fly_right()
+          }
 
+          this.gifts_sprites.forEach((item => {
 
+            if (item.isActive && !item.isBang) {
+              item.fall();
+            } else if (item.isBang) {
+              item.bang();
+            }
 
-        this.update();
+          }))
+          this.update();
+        } else {
+          this.game_intro()
+        }
 
         window.setTimeout(game.mainLoop, 1000 / 60);
       }
@@ -645,7 +737,6 @@
 
         }
         this.mainLoop();
-
       }
     }
 
