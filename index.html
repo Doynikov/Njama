@@ -72,6 +72,7 @@
 
     class Sprite {
       constructor() {
+
         this.x = 0;
         this.y = 0;
         this.sprite = null;
@@ -510,6 +511,7 @@
         this.width = canvas.width;
         this.height = canvas.height;
         this.isGamePlay = false
+        this.isGameStop = false
 
         this.width_default = this.width;
         this.height_default = this.height;
@@ -544,6 +546,9 @@
           cake: { name: 'cake', src: 'assets/images/cake.png' },
           candy_green: { name: 'candy_green', src: 'assets/images/candy_green.png' },
           candy_red: { name: 'candy_red', src: 'assets/images/candy_red.png' },
+          button_out: { name: 'button_out', src: 'assets/images/button_out.png' },
+          button_repeat: { name: 'button_repeat', src: 'assets/images/button_repeat.png' },
+          button_next: { name: 'button_next', src: 'assets/images/button_next.png' }
         };
 
         this.gifts_images = [
@@ -607,18 +612,29 @@
 
       }
 
+
+
       game_over = () => {
-        console.log(this.ctx.fillText(l, (this.width - this.sprite.width * this.ks) / 2 + this.width / 6, (this.height - this.sprite.height * this.ks) / 2 + this.height / 4))
+        this.isGameStop = true;
+        console.log(11)
         this.ctx.fillStyle = "white"
         this.ctx.strokeStyle = "black"
         this.ctx.lineWidth = 3
         const r = 'GAME OVER'
-        const l = 'НАЧАТЬ ЗАНОВО'
+        this.ctx.textAlign = "center"
+
+        this.ctx.clearRect(0, 0, this.width, this.height)
         this.ctx.font = (60 * this.ks) + "px arial black"
-        this.ctx.fillText(r, (this.width - this.sprite.width * this.ks) / 2, (this.height - this.sprite.height * this.ks) / 2);
-        this.ctx.strokeText(r, (this.width - this.sprite.width * this.ks) / 2, (this.height - this.sprite.height * this.ks) / 2);
-        this.ctx.fillStyle = "red"
-        this.ctx.fillText(l, (this.width - this.sprite.width * this.ks) / 2 + this.width / 6, (this.height - this.sprite.height * this.ks) / 2 + this.height / 4);
+        this.ctx.fillText(r, this.width / 2, this.height / 2);
+        this.ctx.strokeText(r, this.width / 2, this.height / 2);
+
+        const button_repeat_sprite = this.images['button_repeat'].sprite;
+        const button_out_sprite = this.images['button_out'].sprite;
+        this.ctx.translate((this.width - (button_out_sprite.width + button_repeat_sprite.width + 30)) / 2, (this.height - button_out_sprite.height) / 2 + 120 * this.ks);
+        this.ctx.scale(game.ks, game.ks);
+        this.ctx.drawImage(button_out_sprite, 0, 0);
+        this.ctx.drawImage(button_repeat_sprite, button_out_sprite.width + 30, 0);
+
       }
 
       drawCounter = () => {
@@ -686,35 +702,37 @@
       mainLoop = () => {
 
         if (this.isGamePlay) {
-          if (events.keyLeft) {
-            nyama.moveLeft();
-          } else if (events.keyRight) {
-            nyama.moveRight();
-          }
-          if (events.keyUp) {
-            nyama.moveUp();
-          }
-          else if (nyama.isJump) {
-            nyama.fall();
-          }
-          if (nyama.isFly_left) {
-            nyama.bang_fly_left()
-          }
-
-          if (nyama.isFly_right) {
-            nyama.bang_fly_right()
-          }
-
-          this.gifts_sprites.forEach((item => {
-
-            if (item.isActive && !item.isBang) {
-              item.fall();
-            } else if (item.isBang) {
-              item.bang();
+          if (!this.isGameStop) {
+            if (events.keyLeft) {
+              nyama.moveLeft();
+            } else if (events.keyRight) {
+              nyama.moveRight();
+            }
+            if (events.keyUp) {
+              nyama.moveUp();
+            }
+            else if (nyama.isJump) {
+              nyama.fall();
+            }
+            if (nyama.isFly_left) {
+              nyama.bang_fly_left()
             }
 
-          }))
-          this.update();
+            if (nyama.isFly_right) {
+              nyama.bang_fly_right()
+            }
+
+            this.gifts_sprites.forEach((item => {
+
+              if (item.isActive && !item.isBang) {
+                item.fall();
+              } else if (item.isBang) {
+                item.bang();
+              }
+
+            }))
+            this.update();
+          }
         } else {
           this.game_intro()
         }
