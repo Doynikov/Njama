@@ -34,6 +34,16 @@
         this.keyUp = false;
         this.keyLeft = false;
         this.keyRight = false;
+        this.click = false;
+        this.x = 0;
+        this.y = 0;
+      }
+
+      handleClick = (e) => {
+        this.click = true;
+        this.x = e.x;
+        this.y = e.y;
+        console.log(this.y, this.x)
       }
 
       handleKeyDown = (e) => {
@@ -123,6 +133,7 @@
         this.direct = 'left';
         this.isJump = false;
         this.isFall = false;
+        this.isFallDie = false;
         this.isFly_left = false
         this.isFly_right = false
         this.is_eat_good = false;
@@ -175,12 +186,13 @@
             this.y -= this.step_jump;
           } else {
             this.isFall = true
+            this.isFallDie = true
             this.jump_delay_counter = 0
             events.keyUp = false
             this.name = 'nyama_die_up_star';
             this.sprite = game.images[this.name].sprite;
             game.sounds[6].sound.play()
-            game.live_counter -= 0.5
+            
           }
         }
       }
@@ -218,10 +230,16 @@
           game.sounds[6].sound.currentTime = 0
           this.isFall = false
           this.y = game.height_default - this.height;
+          if (this.isFallDie) {
+            game.live_counter -= 0.5;
+            this.isFallDie = false;
+          }
+          
         }
       }
 
       update = () => {
+        if (game.isGameStop) return;
         if (nyama.direct === 'right') {
           game.ctx.translate(this.x * game.ks + this.width * game.ks, this.y * game.ks);
           game.ctx.scale(game.ks * -1, game.ks);
@@ -231,6 +249,7 @@
         }
         game.ctx.drawImage(this.sprite, 0, 0);
       }
+
       set_normal = () => {
         this.name = 'nyama'
         this.sprite = game.images[this.name].sprite;
@@ -492,14 +511,52 @@
       }
 
       update = () => {
+        if (game.isGameStop) return;
+        console.log('gift_update')
         game.ctx.save();
         game.ctx.translate(this.x * game.ks, this.y * game.ks);
         game.ctx.scale(game.ks, game.ks);
         game.ctx.drawImage(this.sprite, 0, 0);
         game.ctx.restore();
       }
+
+     
     }
 
+
+    class Buttons {
+      constructor(text, size) {
+      
+        game.ctx.font = (size * game.ks) + "px arial black"
+        this.size = size
+        this.text = text;
+        this.x = 0;
+        this.y = 0;                      
+      }
+      get width() {
+        console.log(this.text)
+        return game.ctx.measureText(this.text).width * game.ks;  
+      }
+      get height() {
+        return (this.size + 10) * game.ks;
+      }
+
+      drawGameOverButtons = () => {
+        
+        game.ctx.save(); 
+        game.ctx.textAlign = "left"
+        game.ctx.font = (buttons_out.height * game.ks) + "px sans-serif"
+        const x = (game.width - (this.width + buttons_out.width + 60)) / 2 
+        const y = (game.height - this.height) / 2 + 120 * game.ks 
+        game.ctx.fillStyle = "darkgreen"
+        game.ctx.fillText(buttons_out.text, x, y);
+        game.ctx.fillText(this.text, x + buttons_out.width + 60, y);
+        console.log(x, y, this.width, this.height)
+        game.ctx.restore();
+      }
+      
+              
+    }
 
 
 
@@ -615,26 +672,21 @@
 
 
       game_over = () => {
-        this.isGameStop = true;
-        console.log(11)
+        this.isGameStop = true;     
+        this.ctx.clearRect(0, 0, this.width, this.height)  
+        this.ctx.save(); 
         this.ctx.fillStyle = "white"
         this.ctx.strokeStyle = "black"
-        this.ctx.lineWidth = 3
+        this.ctx.lineWidth = 1
         const r = 'GAME OVER'
         this.ctx.textAlign = "center"
 
-        this.ctx.clearRect(0, 0, this.width, this.height)
         this.ctx.font = (60 * this.ks) + "px arial black"
         this.ctx.fillText(r, this.width / 2, this.height / 2);
         this.ctx.strokeText(r, this.width / 2, this.height / 2);
+        this.ctx.restore();
 
-        const button_repeat_sprite = this.images['button_repeat'].sprite;
-        const button_out_sprite = this.images['button_out'].sprite;
-        this.ctx.translate((this.width - (button_out_sprite.width + button_repeat_sprite.width + 30)) / 2, (this.height - button_out_sprite.height) / 2 + 120 * this.ks);
-        this.ctx.scale(game.ks, game.ks);
-        this.ctx.drawImage(button_out_sprite, 0, 0);
-        this.ctx.drawImage(button_repeat_sprite, button_out_sprite.width + 30, 0);
-
+        buttons_repeat.drawGameOverButtons()
       }
 
       drawCounter = () => {
@@ -658,8 +710,9 @@
       game_intro = () => {
         this.name = 'intro_image'
         this.sprite = game.images[this.name].sprite;
-        this.ctx.clearRect(0, 0, this.width, this.height);
         this.ctx.save();
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        
         this.ctx.translate((this.width - this.sprite.width * this.ks) / 2, (this.height - this.sprite.height * this.ks) / 2);
         this.ctx.scale(this.ks, this.ks);
 
@@ -669,6 +722,7 @@
 
       update = () => {
         this.ctx.clearRect(0, 0, this.width, this.height);
+        if (this.isGameStop) return;
         if (nyama.is_eat_good) {
           nyama.eat_good();
         }
@@ -733,8 +787,6 @@
             }))
             this.update();
           }
-        } else {
-          this.game_intro()
         }
 
         window.setTimeout(game.mainLoop, 1000 / 60);
@@ -752,15 +804,21 @@
             this.gifts_sprites[i].start_new();
           }, 500
           )
-
         }
+
+        
+        setTimeout(() => {
+          this.game_intro()
+          }, 1)
         this.mainLoop();
-      }
+      };
+        
     }
 
     events = new Events;
     window.onkeydown = events.handleKeyDown;
     window.onkeyup = events.handleKeyUp;
+    window.onclick = events.handleClick;
 
     game = new Game;
     game.loadImages();
@@ -768,6 +826,9 @@
 
     window.onload = function () {
       nyama = new Nyama;
+      buttons_out = new Buttons('выход', 40);
+      buttons_next = new Buttons('продолжить', 40);
+      buttons_repeat = new Buttons('повторить', 40);
       game.start();
     }
 
