@@ -43,7 +43,7 @@
         this.click = true;
         this.x = e.x;
         this.y = e.y;
-        console.log(this.y, this.x)
+        console.log(this.x, this.y)
       }
 
       handleKeyDown = (e) => {
@@ -527,32 +527,53 @@
     class Buttons {
       constructor(text, size) {
       
-        game.ctx.font = (size * game.ks) + "px arial black"
+        game.ctx.font = (size) + "px arial black"
         this.size = size
         this.text = text;
         this.x = 0;
         this.y = 0;                      
       }
       get width() {
-        console.log(this.text)
-        return game.ctx.measureText(this.text).width * game.ks;  
+        game.ctx.font = this.size + "px sans-serif"
+        return game.ctx.measureText(this.text).width;  
       }
       get height() {
-        return (this.size + 10) * game.ks;
+        return (this.size + 10);
       }
 
-      drawGameOverButtons = () => {
-        
+      get right() {
+        return this.x + this.width;
+      } 
+
+      get left() {
+        return this.x 
+      }
+
+      get bottom() {
+        return this.y + this.height;
+      }
+
+      get top() {
+        return this.y
+      }
+
+      drawGameOverButtons = () => {   
         game.ctx.save(); 
         game.ctx.textAlign = "left"
-        game.ctx.font = (buttons_out.height * game.ks) + "px sans-serif"
-        const x = (game.width - (this.width + buttons_out.width + 60)) / 2 
-        const y = (game.height - this.height) / 2 + 120 * game.ks 
+        game.ctx.font = this.size + "px sans-serif"
+        button_out.x = (game.width - (this.width + button_out.width + 60)) / 2 
+        button_out.y = (game.height - this.height) / 2 + 120 * game.ks 
         game.ctx.fillStyle = "darkgreen"
-        game.ctx.fillText(buttons_out.text, x, y);
-        game.ctx.fillText(this.text, x + buttons_out.width + 60, y);
-        console.log(x, y, this.width, this.height)
+        game.ctx.fillText(button_out.text, button_out.x, button_out.y);
+        this.x = button_out.x + button_out.width + 60;
+        this.y = button_out.y
+        game.ctx.fillText(this.text, this.x, this.y);
         game.ctx.restore();
+      }
+
+      isClickInButton = (x, y) => {
+        console.log(x, this.width, this.left, this.right, y, this.height, this.top, this.bottom)
+        return x > this.left && x < this.right && y > this.top && y < this.bottom
       }
       
               
@@ -686,7 +707,7 @@
         this.ctx.strokeText(r, this.width / 2, this.height / 2);
         this.ctx.restore();
 
-        buttons_repeat.drawGameOverButtons()
+        button_repeat.drawGameOverButtons()
       }
 
       drawCounter = () => {
@@ -786,6 +807,15 @@
 
             }))
             this.update();
+          } else {
+            if (events.click) {
+              if (button_out.isClickInButton(events.x, events.y)) {
+                
+                console.log('out')
+
+              }
+              events.click = false;
+            }  
           }
         }
 
@@ -826,9 +856,9 @@
 
     window.onload = function () {
       nyama = new Nyama;
-      buttons_out = new Buttons('выход', 40);
-      buttons_next = new Buttons('продолжить', 40);
-      buttons_repeat = new Buttons('повторить', 40);
+      button_out = new Buttons('выход', 40);
+      button_next = new Buttons('продолжить', 40);
+      button_repeat = new Buttons('повторить', 40);
       game.start();
     }
 
