@@ -41,9 +41,9 @@
 
       handleClick = (e) => {
         this.click = true;
-        this.x = e.x;
-        this.y = e.y;
-        console.log(this.x, this.y)
+        this.x = e.x-game.canvas.offsetLeft;
+        this.y = e.y-game.canvas.offsetTop;
+        console.log(this.x, this.y, 'event')
       }
 
       handleKeyDown = (e) => {
@@ -191,7 +191,7 @@
             events.keyUp = false
             this.name = 'nyama_die_up_star';
             this.sprite = game.images[this.name].sprite;
-            game.sounds[6].sound.play()
+            // game.sounds[6].sound.play()
             
           }
         }
@@ -534,35 +534,36 @@
         this.y = 0;                      
       }
       get width() {
-        game.ctx.font = this.size + "px sans-serif"
+        game.ctx.font = this.size * game.ks + "px sans-serif"
         return game.ctx.measureText(this.text).width;  
       }
       get height() {
-        return (this.size + 10);
+        return this.size * game.ks;
+      }
+
+       get left() {
+        return this.x; 
       }
 
       get right() {
-        return this.x + this.width;
+        return this.left + this.width;
       } 
 
-      get left() {
-        return this.x 
-      }
-
-      get bottom() {
-        return this.y + this.height;
-      }
-
       get top() {
-        return this.y
+        return this.y - this.height;
+      }
+
+       get bottom() {
+        return this.y;
       }
 
       drawGameOverButtons = () => {   
         game.ctx.save(); 
         game.ctx.textAlign = "left"
-        game.ctx.font = this.size + "px sans-serif"
+        game.ctx.font = this.size * game.ks + "px sans-serif"
         button_out.x = (game.width - (this.width + button_out.width + 60)) / 2 
-        button_out.y = (game.height - this.height) / 2 + 120 * game.ks 
+        button_out.y = (game.height - this.height) / 2 + 120 * game.ks;
+        console.log(button_out.x, button_out.y, game.ks, 'YYYY')
         game.ctx.fillStyle = "darkgreen"
         game.ctx.fillText(button_out.text, button_out.x, button_out.y);
         this.x = button_out.x + button_out.width + 60;
@@ -727,7 +728,8 @@
             this.ctx.strokeText(s, 10 * this.k, 60 * this.ks);
           }
         }
-      }
+      };
+
       game_intro = () => {
         this.name = 'intro_image'
         this.sprite = game.images[this.name].sprite;
@@ -809,14 +811,25 @@
             this.update();
           } else {
             if (events.click) {
-              if (button_out.isClickInButton(events.x, events.y)) {
-                
+              if (button_out.isClickInButton(events.x, events.y)) {             
                 console.log('out')
+              } else if (button_repeat.isClickInButton(events.x, events.y)) {             
+                console.log('go')
+              }
 
+              events.click = false;
+            }
+                 if (events.click) {
+              if (button_out.isClickInButton(events.x, events.y)) {             
+                console.log('out')
               }
               events.click = false;
-            }  
+            }
+
+            this.drawCounter();
           }
+        }  else {
+          this.game_intro()
         }
 
         window.setTimeout(game.mainLoop, 1000 / 60);
@@ -835,11 +848,6 @@
           }, 500
           )
         }
-
-        
-        setTimeout(() => {
-          this.game_intro()
-          }, 1)
         this.mainLoop();
       };
         
@@ -856,9 +864,9 @@
 
     window.onload = function () {
       nyama = new Nyama;
-      button_out = new Buttons('выход', 40);
-      button_next = new Buttons('продолжить', 40);
-      button_repeat = new Buttons('повторить', 40);
+      button_out = new Buttons('выход', 50);
+      button_next = new Buttons('продолжить', 50);
+      button_repeat = new Buttons('повторить', 50);
       game.start();
     }
 
