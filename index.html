@@ -243,6 +243,7 @@
 
       update = () => {
         if (game.isGameStop) return;
+        game.ctx.save();
         if (nyama.direct === 'right') {
           game.ctx.translate(this.x * game.ks + this.width * game.ks, this.y * game.ks);
           game.ctx.scale(game.ks * -1, game.ks);
@@ -251,6 +252,7 @@
           game.ctx.scale(game.ks, game.ks);
         }
         game.ctx.drawImage(this.sprite, 0, 0);
+        game.ctx.restore();
       }
 
       set_normal = () => {
@@ -399,7 +401,68 @@
       }
     }
 
+    class Rat extends Sprite {
+      constructor() {
+        super();
+        this.name = 'rat_image_l'
+        this.sprite = game.images[this.name].sprite
+        this.step_go = 5
+        this.direct = 'right'
+        this.isActive = true
+        this.height = this.sprite.height
+        this.width = this.sprite.width
+        this.toBottomScreen()
+        this.x = 0
+        this.step_counter = 0;
+        this.step_counter_max = 15;
+      }
 
+      move_rat = () => {
+        if (!this.isActive) return;
+        this.step_counter ++
+        if (this.step_counter === this.step_counter_max) {
+          this.step_counter = 0
+          if (this.name === 'rat_image_l') {
+            this.name = 'rat_image_r'
+          } else {
+            this.name = 'rat_image_l'
+            
+          }
+          console.log(this.name)
+          this.sprite = game.images[this.name].sprite 
+        }
+
+        if (this.direct === 'right') {
+          
+          if (this.right < game.width_default) {
+            this.x += this.step_go;
+          } else {
+            this.direct = 'left'            
+          }
+        } else {
+          if (this.x > 0) {
+            this.x -= this.step_go;
+          } else {
+            this.direct = 'right'   
+          }
+        }
+      }
+
+      update = () => {
+        //if (game.isGameStop) return;
+        this.move_rat()
+        game.ctx.save()
+        if (rat.direct === 'left') {
+          game.ctx.translate(this.x * game.ks + this.width * game.ks, this.y * game.ks);
+          game.ctx.scale(game.ks * -1, game.ks);
+        } else {
+          game.ctx.translate(this.x * game.ks, this.y * game.ks);
+          game.ctx.scale(game.ks, game.ks);
+        }
+        game.ctx.drawImage(this.sprite, 0, 0);
+        game.ctx.restore()
+      }
+    }
 
 
     class Gifts extends Sprite {
@@ -515,7 +578,7 @@
 
       update = () => {
         if (game.isGameStop) return;
-        console.log('gift_update')
+        
         game.ctx.save();
         game.ctx.translate(this.x * game.ks, this.y * game.ks);
         game.ctx.scale(game.ks, game.ks);
@@ -592,7 +655,7 @@
         game.ctx.restore();
       }
 
-      
+
 
       isClickInButton = (x, y) => {
         console.log(x, this.width, this.left, this.right, y, this.height, this.top, this.bottom)
@@ -675,7 +738,7 @@
           { name: 'rat_cry_snd', src: 'assets/sounds/rat_cry.mp3' },
         ]
       };
-      
+
 
       get center() {
         return {
@@ -827,13 +890,9 @@
         if (nyama.is_bang) {
           nyama.bang();
         }
-        this.ctx.save();
-        nyama.update();
-        this.ctx.restore();
-        this.ctx.save();
-        this.drawCounter();
-        this.ctx.restore();
-
+        rat.update();        
+        nyama.update();        
+        this.drawCounter();    
 
         this.gifts_sprites.forEach((item => {
 
@@ -886,7 +945,6 @@
                 this.level = 1
                 this.game_init()
                 this.isGamePlay = false
-                this.isGameStop = false
 
                 console.log('out')
               } else if (button_repeat.isClickInButton(events.x, events.y)) {
@@ -907,7 +965,7 @@
             this.drawCounter();
           }
         } else {
-          
+
           if (events.keyPress) {
             events.keyPress = false
             this.isGamePlay = true
@@ -945,6 +1003,7 @@
 
     window.onload = function () {
       nyama = new Nyama;
+      rat = new Rat;
       button_out = new Buttons('выход', 50);
       button_next = new Buttons('продолжить', 50);
       button_repeat = new Buttons('повторить', 50);
