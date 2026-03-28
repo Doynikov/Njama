@@ -415,35 +415,57 @@
         this.x = 0
         this.step_counter = 0;
         this.step_counter_max = 15;
+        this.end_path = game.width_default
       }
 
       move_rat = () => {
         if (!this.isActive) return;
-        this.step_counter ++
+        this.step_counter++
         if (this.step_counter === this.step_counter_max) {
           this.step_counter = 0
           if (this.name === 'rat_image_l') {
             this.name = 'rat_image_r'
           } else {
             this.name = 'rat_image_l'
-            
+
           }
           console.log(this.name)
-          this.sprite = game.images[this.name].sprite 
+          this.sprite = game.images[this.name].sprite
         }
-
+        if (this.x > nyama.right && this.direct === 'right') {
+          this.direct = 'left'
+          this.end_path = this.x * Math.random()
+          if (this.end_path === this.x) {
+            this.end_path = this.x - 100
+          }
+        } else if (this.right < nyama.x && this.direct === 'left') {
+          this.direct = 'right'
+          this.end_path = (game.width_default - this.x) * Math.random() + this.x
+          if (this.end_path === this.x) {
+            this.end_path = this.x + 100
+          }
+        }
+        console.log(this.direct, this.x, this.end_path)
         if (this.direct === 'right') {
-          
-          if (this.right < game.width_default) {
+
+          if (this.right < this.end_path) {
             this.x += this.step_go;
           } else {
-            this.direct = 'left'            
+            this.direct = 'left'
+            this.end_path = this.x * Math.random()
+            if (this.end_path === this.x) {
+              this.end_path = this.x - 100
+            }
           }
         } else {
-          if (this.x > 0) {
+          if (this.x > this.end_path) {
             this.x -= this.step_go;
           } else {
-            this.direct = 'right'   
+            this.direct = 'right'
+            this.end_path = (game.width_default - this.x) * Math.random() + this.x
+            if (this.end_path === this.x) {
+              this.end_path = this.x + 100
+            }
           }
         }
       }
@@ -578,7 +600,7 @@
 
       update = () => {
         if (game.isGameStop) return;
-        
+
         game.ctx.save();
         game.ctx.translate(this.x * game.ks, this.y * game.ks);
         game.ctx.scale(game.ks, game.ks);
@@ -890,9 +912,9 @@
         if (nyama.is_bang) {
           nyama.bang();
         }
-        rat.update();        
-        nyama.update();        
-        this.drawCounter();    
+        rat.update();
+        nyama.update();
+        this.drawCounter();
 
         this.gifts_sprites.forEach((item => {
 
