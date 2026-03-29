@@ -211,7 +211,8 @@
 
       }
 
-      fall = () => {
+      fall = () => { 
+        if (!this.is_active) return
         this.isFall = true
         this.jump_delay_counter = 0
         if (this.y < game.height_default - this.height) {
@@ -406,10 +407,36 @@
         this.step_counter = 0;
         this.step_counter_max = 15;
         this.end_path = game.width_default
+        this.eat_counter = 0;
       }
 
       eat = () => {
         console.log('eat')
+        this.eat_counter ++
+        nyama.is_active = false;
+        nyama.toBottomScreen();
+        if (this.eat_counter === 1) {
+          nyama.name = 'nyama_blood_1'
+          nyama.sprite = game.images[nyama.name].sprite
+        } else if (this.eat_counter === 20) {
+          nyama.name = 'nyama_blood_2'
+          nyama.sprite = game.images[nyama.name].sprite
+        } else if (this.eat_counter === 50) {
+          nyama.y = -200 
+          this.eat_counter = 0
+          this.isEat = false
+          game.live_counter -= 1
+          setTimeout(() => {
+            nyama.toBottomScreen()
+            nyama.set_normal()
+            nyama.is_active = true
+          }, 2000)
+          /*if (this.direct === 'right') {
+            nyama.x += 200
+          } else {
+            nyama.x -= 200
+          }*/
+        }
       }
 
       move_rat = () => {
@@ -437,7 +464,7 @@
               this.isEat = true
               return;
             }
-          } else if( nyama.right < this.x) { // повернем крысу только если няма слева
+          } else if( nyama.right < this.x || !nyama.is_active) { // повернем крысу только если няма слева
             this.direct = 'left'
             this.end_path = 0
             if ((this.x - this.end_path) < 100) { // если расстояние от крысы до конца пути меньше 100 увеличим это расстояние до 300
@@ -456,7 +483,7 @@
               this.isEat = true
               return;
             }
-          } else if (this.right < nyama.x) { // повернем крысу только если няма справа
+          } else if (this.right < nyama.x || !nyama.is_active) { // повернем крысу только если няма справа
             this.direct = 'right'
             this.end_path = game.width_default
             if ((this.end_path - this.x) < 100) {
