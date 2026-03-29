@@ -107,13 +107,6 @@
       toLeftScreen = () => {
         this.x = 0;
       }
-
-      /*set name(value) {
-        if (value.length < 4) {
-          alert("Имя слишком короткое.");
-          return;
-        }
-      }*/
     }
 
 
@@ -291,7 +284,6 @@
         }
       }
 
-
       brick = () => {
         this.brick_delay_counter++;
         if (!this.is_brick) {
@@ -306,9 +298,8 @@
           this.brick_delay_counter = 0;
           this.set_normal()
         }
-
-
       }
+
       bang = () => {
         this.bang_delay_counter++;
         if (!this.is_bang) {
@@ -407,6 +398,7 @@
         this.step_go = 5
         this.direct = 'right'
         this.isActive = true
+        this.isEat = false
         this.height = this.sprite.height
         this.width = this.sprite.width
         this.toBottomScreen()
@@ -414,6 +406,10 @@
         this.step_counter = 0;
         this.step_counter_max = 15;
         this.end_path = game.width_default
+      }
+
+      eat = () => {
+        console.log('eat')
       }
 
       move_rat = () => {
@@ -425,44 +421,46 @@
             this.name = 'rat_image_r'
           } else {
             this.name = 'rat_image_l'
-
           }
-          console.log(this.name)
           this.sprite = game.images[this.name].sprite
         }
-        if (this.x > nyama.right && this.direct === 'right') {
-          this.direct = 'left'
-          this.end_path = this.x * Math.random()
-          if (this.end_path === this.x) {
-            this.end_path = this.x - 100
-          }
-        } else if (this.right < nyama.x && this.direct === 'left') {
-          this.direct = 'right'
-          this.end_path = (game.width_default - this.x) * Math.random() + this.x
-          if (this.end_path === this.x) {
-            this.end_path = this.x + 100
-          }
-        }
-        console.log(this.direct, this.x, this.end_path)
+        
         if (this.direct === 'right') {
-
-          if (this.right < this.end_path) {
+          if (
+            this.right < this.end_path // если крыса не вышла за конец экрана
+            && ((nyama.x - this.x) > -250 || nyama.bottom < game.height_default - 60) // если крыса правее не далее 250 или няма подпрыгнул
+            ) 
+          {
             this.x += this.step_go;
-          } else {
+            if (this.right - nyama.x > 40 && this.right - nyama.x < 100 && nyama.bottom > game.height_default - 60) {
+              console.log(this.right, nyama.x, 'right')
+              this.isEat = true
+              return;
+            }
+          } else if( nyama.right < this.x) { // повернем крысу только если няма слева
             this.direct = 'left'
-            this.end_path = this.x * Math.random()
-            if (this.end_path === this.x) {
-              this.end_path = this.x - 100
+            this.end_path = 0
+            if ((this.x - this.end_path) < 100) { // если расстояние от крысы до конца пути меньше 100 увеличим это расстояние до 300
+              this.end_path = this.x - 300
             }
           }
         } else {
-          if (this.x > this.end_path) {
+          if (
+            this.x > 0 // если крыса не вышла за начало экрана
+            && (this.x - nyama.right > -250 || nyama.bottom < game.height_default - 60)  // если крыса левее не далее 250 или няма подпрыгнул
+          ) 
+          {
             this.x -= this.step_go;
-          } else {
+            if (this.x - nyama.right < -40 && this.x - nyama.right > -100 && nyama.bottom > game.height_default - 60) {
+              console.log(this.x, nyama.right, 'left')
+              this.isEat = true
+              return;
+            }
+          } else if (this.right < nyama.x) { // повернем крысу только если няма справа
             this.direct = 'right'
-            this.end_path = (game.width_default - this.x) * Math.random() + this.x
-            if (this.end_path === this.x) {
-              this.end_path = this.x + 100
+            this.end_path = game.width_default
+            if ((this.end_path - this.x) < 100) {
+              this.end_path = this.x + 300
             }
           }
         }
@@ -470,7 +468,11 @@
 
       update = () => {
         //if (game.isGameStop) return;
-        this.move_rat()
+        if(this.isEat) {
+          this.eat()
+        } else {
+          this.move_rat()
+        }
         game.ctx.save()
         if (rat.direct === 'left') {
           game.ctx.translate(this.x * game.ks + this.width * game.ks, this.y * game.ks);
@@ -531,7 +533,6 @@
             && ((gift_x - nyama_x < 0 && nyama.direct === 'left')
               || (gift_x - nyama_x > 0 && nyama.direct === 'right')
               || Math.abs(gift_x - nyama_x) < 10)) {
-            //console.log('sdjaodjoa', gift_x, gift_y, nyama_x, nyama_y)
             this.isActive = false;
             this.start_new();
             if (this.name === 'cake' || this.name === 'candy_green') {
@@ -666,7 +667,6 @@
         game.ctx.font = this.size * game.ks + "px sans-serif"
         button_out.x = (game.width - (this.width + button_out.width + 60)) / 2
         button_out.y = (game.height - this.height) / 2 + 120 * game.ks;
-        console.log(button_out.x, button_out.y, game.ks, 'YYYY')
         game.ctx.fillStyle = "darkgreen"
         game.ctx.fillText(button_out.text, button_out.x, button_out.y);
         this.x = button_out.x + button_out.width + 60;
@@ -678,7 +678,6 @@
 
 
       isClickInButton = (x, y) => {
-        console.log(x, this.width, this.left, this.right, y, this.height, this.top, this.bottom)
         return x > this.left && x < this.right && y > this.top && y < this.bottom
       }
 
@@ -910,8 +909,8 @@
         if (nyama.is_bang) {
           nyama.bang();
         }
-        rat.update();
         nyama.update();
+        rat.update();
         this.drawCounter();
 
         this.gifts_sprites.forEach((item => {
@@ -965,27 +964,20 @@
                 this.level = 1
                 this.game_init()
                 this.isGamePlay = false
-
-                console.log('out')
               } else if (button_repeat.isClickInButton(events.x, events.y)) {
-                console.log('go')
                 this.game_init()
                 this.isGameStop = false
 
               } else if (button_next.isClickInButton(events.x, events.y)) {
-                console.log('next')
                 this.level = 2
                 this.game_init()
                 this.isGameStop = false
               }
-
               events.click = false;
             }
-
             this.drawCounter();
           }
         } else {
-
           if (events.keyPress) {
             events.keyPress = false
             this.isGamePlay = true
@@ -993,7 +985,6 @@
           }
           this.game_intro()
         }
-
         window.setTimeout(game.mainLoop, 1000 / 60);
       }
 
