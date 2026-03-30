@@ -86,8 +86,15 @@
         this.x = 0;
         this.y = 0;
         this.sprite = null;
-        this.width = 0;
-        this.height = 0;
+        this.name = '';
+      }
+
+      get width() {
+        return this.sprite.width
+      }
+
+      get height() {
+        return this.sprite.height
       }
 
       get bottom() {
@@ -96,7 +103,7 @@
       
       get right() {
         return this.x + this.width;
-      }
+      }     
 
       toBottomScreen = () => {
         this.y = game.height_default - this.height;
@@ -107,6 +114,10 @@
       toLeftScreen = () => {
         this.x = 0;
       }
+      setSprite = (name) => {
+        this.name = name
+        this.sprite = game.images[this.name].sprite
+      }
     }
 
 
@@ -114,10 +125,7 @@
     class Nyama extends Sprite {
       constructor() {
         super();
-        this.name = 'nyama';
-        this.sprite = game.images[this.name].sprite;
-        this.width = this.sprite.width;
-        this.height = this.sprite.height;
+        this.setSprite('nyama');        
         this.x = game.width_default / 2;
         this.y = game.height_default - this.height;
         this.step_go = 10;
@@ -169,13 +177,11 @@
 
         if (!this.isJump) {
           this.isJump = true;
-          this.name = 'nyama_press';
-          this.sprite = game.images[this.name].sprite;
+          this.setSprite('nyama_press');          
         }
         if (this.jump_delay_counter > 10) {
 
-          this.name = 'nyama_jump';
-          this.sprite = game.images[this.name].sprite;
+          this.setSprite('nyama_jump');          
           if (this.y > 0) {
             this.y -= this.step_jump;
           } else {
@@ -183,9 +189,8 @@
             this.isFallDie = true
             this.jump_delay_counter = 0
             events.keyUp = false
-            this.name = 'nyama_die_up_star';
-            this.sprite = game.images[this.name].sprite;
-            // game.sounds[6].sound.play()
+            this.setSprite('nyama_die_up_star');            
+            game.sound_play(6)
 
           }
         }
@@ -194,21 +199,6 @@
       moveUp = () => {
         if (this.isFall) return;
         this.Jump()
-        /*
-        this.isJump = true;
-          
-            if (this.y > 0) {
-              this.y -= this.step_jump;
-              this.name = 'nyama_jump';
-              this.sprite = game.images[this.name].sprite;
-            } else {
-              this.isFall
-              events.keyUp = false
-              this.name = 'nyama';
-              this.sprite = game.images[this.name].sprite;
-          }
-              */
-
       }
 
       fall = () => { 
@@ -221,8 +211,7 @@
         } else {
           this.isJump = false
           this.set_normal();
-          game.sounds[6].sound.pause()
-          game.sounds[6].sound.currentTime = 0
+          game.sounds_stop()
           this.isFall = false
           this.y = game.height_default - this.height;
           if (this.isFallDie) {
@@ -248,17 +237,15 @@
       }
 
       set_normal = () => {
-        this.name = 'nyama'
-        this.sprite = game.images[this.name].sprite;
+        this.setSprite('nyama');        
       }
 
       eat_good = () => {
         this.eat_good_delay_counter++;
         if (!this.is_eat_good) {
           this.is_eat_good = true;
-          this.name = 'nyama_njam';
-          this.sprite = game.images[this.name].sprite;
-          game.sounds[4].sound.play()
+          this.setSprite('nyama_njam');          
+          game.sound_play(4)
         }
         if (this.eat_good_delay_counter > 300) {
           this.is_eat_good = false;
@@ -273,9 +260,8 @@
         this.eat_bad_delay_counter++;
         if (!this.is_eat_bad) {
           this.is_eat_bad = true;
-          this.name = 'nyama_red';
-          this.sprite = game.images[this.name].sprite;
-          game.sounds[3].sound.play()
+          this.setSprite('nyama_red');          
+          game.sound_play(3)
         }
         if (this.eat_bad_delay_counter > 50) {
           this.is_eat_bad = false;
@@ -289,9 +275,8 @@
         this.brick_delay_counter++;
         if (!this.is_brick) {
           this.is_brick = true;
-          this.name = 'nyama_down_star';
-          this.sprite = game.images[this.name].sprite;
-          game.sounds[5].sound.play()
+          this.setSprite('nyama_down_star');          
+          game.sound_play(5)
         }
         if (this.brick_delay_counter > 50) {
           this.is_brick = false;
@@ -306,17 +291,14 @@
         if (!this.is_bang) {
           this.is_active = false
           this.is_bang = true;
-          this.name = 'bang_image';
-          this.sprite = game.images[this.name].sprite;
-          game.sounds[0].sound.play()
+          this.setSprite('bang_image');          
+          game.sound_play(0)
         }
         if (this.bang_delay_counter > 20) {
-          this.name = 'nyama_bang';
-          this.sprite = game.images[this.name].sprite;
+          this.setSprite('nyama_bang');        
           if (this.bang_delay_counter > 30) {
             this.y = game.height_default - this.height - 2;
-            this.name = 'nyama_die';
-            this.sprite = game.images[this.name].sprite;
+            this.setSprite('nyama_die');
             if (this.bang_delay_counter > 300) {
               this.is_bang = false;
               this.is_active = true
@@ -330,24 +312,20 @@
 
       bang_fly_left = () => {
         if (this.x > 0) {
-          game.sounds[1].sound.play()
+          game.sound_play(1)
           this.is_active = false
           this.y -= this.step_fly * 0.5
           this.x -= this.step_fly
         } else {
           if (!this.is_wall_left) {
             this.direct = 'left'
-            game.sounds[1].sound.pause()
-            game.sounds[1].sound.currentTime = 0
-            game.sounds[2].sound.play()
+            game.sound_play(2)
             this.is_wall_left = true
             this.toLeftScreen();
-            this.name = 'nyama_wall_left';
-            this.sprite = game.images[this.name].sprite;
+            this.setSprite('nyama_wall_left');            
           }
           if (this.bottom < game.height_default) {
-            game.sounds[1].sound.pause()
-            game.sounds[1].sound.currentTime = 0
+            game.sounds_stop()
             this.y += 5;
           } else {
             this.isFly_left = false;
@@ -362,7 +340,7 @@
 
       bang_fly_right = () => {
         if (this.right < game.width_default) {
-          game.sounds[1].sound.play()
+          game.sound_play(1)
           this.is_active = false
           this.y -= this.step_fly * 0.5
           this.x += this.step_fly
@@ -370,12 +348,9 @@
           if (!this.is_wall_right) {
             this.toRightScreen();
             this.direct = 'left'
-            game.sounds[1].sound.pause()
-            game.sounds[1].sound.currentTime = 0
-            game.sounds[2].sound.play()
+            game.sound_play(2)
             this.is_wall_right = true
-            this.name = 'nyama_wall_right';
-            this.sprite = game.images[this.name].sprite;
+            this.setSprite('nyama_wall_right');          
           }
           if (this.bottom < game.height_default) {
             this.y += 5;
@@ -394,21 +369,40 @@
     class Rat extends Sprite {
       constructor() {
         super();
-        this.name = 'rat_image_l'
-        this.sprite = game.images[this.name].sprite
+        this.setSprite('rat_image_l')        
         this.step_go = 5
         this.direct = 'right'
-        this.isActive = true
+        this.is_active = true
         this.isEat = false
-        this.height = this.sprite.height
-        this.width = this.sprite.width
         this.toBottomScreen()
         this.x = 0
         this.step_counter = 0;
         this.step_counter_max = 15;
         this.end_path = game.width_default
         this.eat_counter = 0;
+        this.boomRat = false
+        this.boom_counter = 0;
       }
+
+      boom_rat = () => {
+        this.boom_counter ++
+        if (!this.boomRat) {
+          console.log('kd')
+          this.boomRat = false;
+          this.setSprite('rat_break')
+          this.is_active = false
+          //this.boom_rat()
+          
+        }
+        if (this.boom_counter === 12 && this.boomRat === false) {
+          console.log('dpkdps')
+          this.boomRat = false
+          this.boom_counter = 0
+          this.is_active = true
+          this.setSprite('rat_image_l') 
+        }
+      }
+    
 
       eat = () => {
         console.log('eat')
@@ -416,11 +410,10 @@
         nyama.is_active = false;
         nyama.toBottomScreen();
         if (this.eat_counter === 1) {
-          nyama.name = 'nyama_blood_1'
-          nyama.sprite = game.images[nyama.name].sprite
+          game.sound_play(7)
+          nyama.setSprite('nyama_blood_1')        
         } else if (this.eat_counter === 20) {
-          nyama.name = 'nyama_blood_2'
-          nyama.sprite = game.images[nyama.name].sprite
+          nyama.setSprite('nyama_blood_2')            
         } else if (this.eat_counter === 50) {
           nyama.y = -200 
           this.eat_counter = 0
@@ -430,6 +423,7 @@
             nyama.toBottomScreen()
             nyama.set_normal()
             nyama.is_active = true
+            game.sounds_stop()
           }, 2000)
           /*if (this.direct === 'right') {
             nyama.x += 200
@@ -440,16 +434,15 @@
       }
 
       move_rat = () => {
-        if (!this.isActive) return;
+        if (!this.is_active) return;
         this.step_counter++
         if (this.step_counter === this.step_counter_max) {
           this.step_counter = 0
           if (this.name === 'rat_image_l') {
-            this.name = 'rat_image_r'
+            this.setSprite('rat_image_r')
           } else {
-            this.name = 'rat_image_l'
+            this.setSprite('rat_image_l')
           }
-          this.sprite = game.images[this.name].sprite
         }
         
         if (this.direct === 'right') {
@@ -516,9 +509,8 @@
 
     class Gifts extends Sprite {
       constructor() {
-        super();
-        this.name = '';
-        this.sprite = null;
+        super();  
+        this.setSprite('bomb')    
         this.step = 4;
         this.isActive = false;
         this.hide_delay_counter = 0;
@@ -528,15 +520,12 @@
 
       start_new() {
         setTimeout(() => {
-          this.name = game.gifts_images[Math.round(Math.random() * (game.gifts_images.length - 1))]
-          this.name = 'cake'
-          this.sprite = game.images[this.name].sprite;
+          this.setSprite(game.gifts_images[Math.round(Math.random() * (game.gifts_images.length - 1))])
+          //this.setSprite('bomb')
 
           this.x = Math.random() * game.width_default;
           this.y = 0
           this.isActive = true;
-          this.width = this.sprite.width;
-          this.height = this.sprite.height;
           if (this.name !== 'bomb') {
             this.fall_end_y = Math.random() * game.height_default - this.height;
           } else {
@@ -554,7 +543,18 @@
           const gift_y = this.y + this.height / 2;
           const nyama_x = nyama.x + nyama.width / 2;
           const nyama_y = nyama.y + nyama.height / 2;
-
+          const rat_y = rat.y + rat.hight / 2;
+          const gift_bottom = this.bottom
+          //nyama.is_active = false 
+          this.x = rat.x
+            
+          if (this.name === 'bomb' && gift_x > rat.x && gift_x < rat.right && this.y > rat.y || rat.boomRat === true)  {
+            //console.log('ksdj')
+            rat.boom_rat();
+            rat.boomRat = false
+          } else if (rat.boom_counter === 12 && rat.boomRat === true)
+            rat.boomRat = false
+            rat.boom_counter = 0
           if ((Math.abs(gift_x - nyama_x) < this.width / 2)
             && (Math.abs(gift_y - nyama_y) < this.height / 2)
             && ((gift_x - nyama_x < 0 && nyama.direct === 'left')
@@ -571,7 +571,6 @@
             } else {
               nyama.bang();
             }
-
           }
 
         } else {
@@ -585,13 +584,18 @@
                 this.start_new()
               }
             } else {
-              this.bang()
+
+              const gift_width = this.width
+              const gift_height = this.height
               const gift_x = this.x + this.width / 2;
               const gift_y = this.y + this.height / 2;
               const nyama_x = nyama.x + nyama.width / 2;
               const nyama_y = nyama.y + nyama.height / 2;
-              if ((Math.abs(gift_x - nyama_x) < this.width * 2)
-                && (Math.abs(gift_y - nyama_y) < this.height * 2)) {
+              this.bang()
+              
+              console.log(Math.abs(gift_x - nyama_x), gift_width)
+              if ((Math.abs(gift_x - nyama_x) < gift_width * 2)
+                && (Math.abs(gift_y - nyama_y) < gift_height * 2)) {
                 if (gift_x - nyama_x < 0) {
 
                   nyama.isFly_right = true;
@@ -614,7 +618,7 @@
           this.y -= 100;
           this.sprite = game.images['bang_image'].sprite;
           this.isBang = true
-          game.sounds[0].sound.play()
+          game.sound_play(0)
         }
         if (this.hide_delay_counter === 20) {
           this.isBang = false
@@ -894,7 +898,7 @@
 
       game_intro = () => {
         this.name = 'intro_image'
-        this.sprite = game.images[this.name].sprite;
+        this.sprite = this.images[this.name].sprite
         this.ctx.save();
         this.ctx.clearRect(0, 0, this.width, this.height);
 
@@ -910,6 +914,18 @@
           this.gifts_sprites[i].isActive = false;
           this.gifts_sprites[i].y = - 200;
         }
+      }
+
+      sounds_stop = () => {
+        this.sounds.forEach(item => {
+          item.sound.pause()
+          item.sound.currentTime = 0
+        })
+      }
+
+      sound_play = (index) => {
+        this.sounds_stop()
+        this.sounds[index].sound.play()
       }
 
       game_init = () => {
