@@ -388,15 +388,15 @@
           }
         }
       }
-      angel = () => {
+      angel = () => {        
         this.fly_counter ++
         if (this.fly_counter === this.fly_counter_max) {
-          this.fly_counter = 0
+          this.fly_counter = 0          
           if (this.name === 'angel80') {
-            this.setSprite('angel80_2')
+            this.setSprite('angel80_3')
           } else {
-            this.setSprite('angel80')
-          }
+            this.setSprite('angel80')    
+          }        
         }
       }
     }
@@ -463,9 +463,10 @@
         } else if (this.eat_counter === 20) {
           nyama.setSprite('nyama_blood_2')
         } else if (this.eat_counter === 50) {    
-          nyama.x -= 20          
+          nyama.x -= 20    
+          game.soundPlay(10)              
           this.setSprite('rat_defecate')
-        } else if (this.eat_counter > 50) {
+        } else if (this.eat_counter > 50) {            
           nyama.y -= 5     
           nyama.angel()               
         }
@@ -474,11 +475,11 @@
           this.is_eat = false
           game.live_counter -= 1
           this.setSprite('rat_image_l')
+          game.soundsStop()
           setTimeout(() => {
             nyama.toBottomScreen()
             nyama.setNormal()
-            nyama.is_active = true
-            game.soundsStop()
+            nyama.is_active = true            
           }, 2000)        
         }
       }
@@ -568,7 +569,7 @@
       startNew() {
         setTimeout(() => {
           this.setSprite(game.gifts_images[Math.round(Math.random() * (game.gifts_images.length - 1))])
-          this.setSprite('bomb')
+          this.setSprite('cake')
           this.x = Math.random() * game.width_default;
           this.y = 0
           this.is_active = true;
@@ -767,6 +768,7 @@
           bg: { name: 'bg', src: 'assets/images/bg.jpg' },
           nyama: { name: 'nyama', src: 'assets/images/nyama.png' },
           angel80: {name: 'angel80', src: 'assets/images/angel80.png' },
+          angel80_3: {name: 'angel80_3', src: 'assets/images/angel80_3.png' },
           angel80_2: {name: 'angel80_2', src: 'assets/images/angel80_2.png' },
           nyama_bang: { name: 'nyama_bang', src: 'assets/images/nyama_bang.png' },
           nyama_die: { name: 'nyama_die', src: 'assets/images/nyama_die.png' },
@@ -807,7 +809,7 @@
         this.levels = [0, 1, 2]
 
         this.sounds = [
-          { name: 'bang_snd', src: 'assets/sounds/bang.mp3' },
+          { name: 'bang_snd', src: 'assets/sounds/bang.mp3' },          
           { name: 'wall_fall_snd', src: 'assets/sounds/wall_fall.mp3' },
           { name: 'wall_hit_snd', src: 'assets/sounds/wall_hit.mp3' },
           { name: 'fu_snd ', src: 'assets/sounds/fu.mp3' },
@@ -816,6 +818,8 @@
           { name: 'boom_up_down_snd', src: 'assets/sounds/boom-up-down.mp3' },
           { name: 'rat_eat_snd', src: 'assets/sounds/rat_eat.mp3' },
           { name: 'rat_cry_snd', src: 'assets/sounds/rat_cry.mp3' },
+          { name: 'angel_snd_allilua', src: 'assets/sounds/angel2.mp3' },
+          { name: 'angel_snd', src: 'assets/sounds/angel3.mp3' },
         ]
       };
 
