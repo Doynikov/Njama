@@ -569,7 +569,6 @@
       startNew() {
         setTimeout(() => {
           this.setSprite(game.gifts_images[Math.round(Math.random() * (game.gifts_images.length - 1))])
-          this.setSprite('cake')
           this.x = Math.random() * game.width_default;
           this.y = 0
           this.is_active = true;
@@ -579,7 +578,7 @@
             this.fall_end_y = game.height_default - this.height;
           }
         }, Math.random() * 5000);
-      }
+      };
 
       fall = () => {
         if (this.y < this.fall_end_y) {
@@ -590,7 +589,6 @@
           const nyama_y = nyama.y + nyama.height / 2;
           const rat_y = rat.y + rat.hight / 2;
           const gift_bottom = this.bottom
-          //this.x = nyama.x + 20
 
           if (this.name === 'bomb'
             && gift_x > rat.x && gift_x < rat.right
@@ -750,7 +748,8 @@
 
     class Game {
       constructor() {
-        this.live_counter_defult = 4.5
+        this.live_counter_max = 10
+        this.live_counter_defult = 5
         this.live_counter = this.live_counter_defult
         this.canvas = document.getElementsByTagName('canvas')[0];
         this.ctx = this.canvas.getContext('2d');
@@ -899,28 +898,28 @@
       }
 
       drawCounter = () => {
-        if (this.live_counter >= 5) {
+        if (this.live_counter >= this.live_counter_max) {
           this.gameWin();
-        }
-        if (this.live_counter <= 0) {
+        } else if (this.live_counter <= 0) {
           this.gameOver();
         } else {
-          let s = 'level ' + this.level + ' '  
-          s += '♥'.repeat(Math.floor(this.live_counter))
+          let s = '♥'.repeat(Math.floor(this.live_counter))
           this.ctx.save();
-          this.ctx.shadowBlur = 20;
-          this.ctx.shadowColor = "black";
-          this.ctx.lineWidth = 3
-          this.ctx.fillStyle = "red"
-          this.ctx.strokeStyle = "red"
-          this.ctx.font = (60 * this.ks) + "px serif"
-          this.ctx.fillText(s, 10 * this.ks, 60 * this.ks);
-
+          this.ctx.shadowBlur = 10;
+          this.ctx.shadowColor = 'black';
+          this.ctx.lineWidth = 1
+          this.ctx.fillStyle = 'red'
+          this.ctx.strokeStyle = 'red'
+          this.ctx.font = (45 * this.ks) + 'px verdana';
+          this.ctx.fillText(s, 15 * this.ks, 50 * this.ks);
           if (!Number.isInteger(this.live_counter)) {
             s += '♥';
-            this.ctx.strokeText(s, 10 * this.ks, 60 * this.ks);
-
+            this.ctx.strokeText(s, 15 * this.ks, 50 * this.ks);
           }
+          this.ctx.font = (17 * this.ks) + 'px verdana';
+          s = `LEVEL ${this.level}`;
+          this.ctx.fillStyle = 'white'
+          this.ctx.fillText(s, 15 * this.ks, 70 * this.ks);
           this.ctx.restore();
         }
       };
@@ -995,8 +994,8 @@
 
       mainLoop = () => {
         if (this.is_game_play) {
-          events.keyPress = false
           if (!this.is_game_stop) {
+            events.keyPress = false
             if (events.keyLeft) {
               nyama.moveLeft();
             } else if (events.keyRight) {
@@ -1022,7 +1021,7 @@
               }
 
             }))
-            this.update();
+            this.update();            
           } else {
             if (events.click) {
               if (button_out.isClickInButton(events.x, events.y)) {
@@ -1032,7 +1031,6 @@
               } else if (button_repeat.isClickInButton(events.x, events.y)) {
                 this.gameInit()
                 this.is_game_stop = false
-
               } else if (button_next.isClickInButton(events.x, events.y)) {
                 this.level = 2
                 this.gameInit()
@@ -1040,12 +1038,13 @@
               }
               events.click = false;
             }
-            this.drawCounter();
           }
         } else {
           if (events.keyPress) {
+            console.log('events.keyPress');
             events.keyPress = false
             this.is_game_play = true
+            this.is_game_stop = false
 
           }
           this.gameIntro()
