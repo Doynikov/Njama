@@ -224,7 +224,7 @@
           this.y += this.step_fall;
         } else {
           this.is_jump = false          
-          if (!this.is_busy) {
+          if (!this.is_busy || this.is_fall_die) {
             this.setNormal();
             this.toBottomScreen()
             game.soundsStop()
@@ -232,10 +232,9 @@
           this.is_fall = false
           this.toBottomScreen()
           if (this.is_fall_die) {
-            console.log('gsjh')
-            this.y = game.height_default - 50
+            console.log('gsjh')            
             game.live_counter -= 0.5;
-            this.is_fall_die= false;            
+            this.is_fall_die = false;            
           }
         }
       }
