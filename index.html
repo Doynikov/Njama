@@ -159,6 +159,7 @@
         this.fly_delay_counter = 0;
         this.fly_counter = 0;
         this.fly_counter_max = 5;
+        this.fall_delay_counter = 0;
       }
 
       moveLeft = () => {
@@ -194,7 +195,7 @@
           
           if (this.y > 0) {
             this.y -= this.step_jump;
-          } else {
+          } else {            
             this.is_fall = true
             this.is_fall_die= true
             this.jump_delay_counter = 0
@@ -210,7 +211,7 @@
         this.Jump()
       }
 
-      fall = () => {
+      fall = () => {               
         if (this.center.x > rat.x && this.center.x < rat.right &&
           this.bottom > rat.y &&
           !rat.is_shlepok_rat) {
@@ -222,16 +223,19 @@
         if (this.y < game.height_default - this.height) {
           this.y += this.step_fall;
         } else {
-          this.is_jump = false
+          this.is_jump = false          
           if (!this.is_busy) {
             this.setNormal();
+            this.toBottomScreen()
             game.soundsStop()
           }
           this.is_fall = false
-          this.y = game.height_default - this.height;
-          if (this.is_fallDie) {
+          this.toBottomScreen()
+          if (this.is_fall_die) {
+            console.log('gsjh')
+            this.y = game.height_default - 50
             game.live_counter -= 0.5;
-            this.is_fall_die= false;
+            this.is_fall_die= false;            
           }
         }
       }
@@ -569,6 +573,7 @@
       startNew() {
         setTimeout(() => {
           this.setSprite(game.gifts_images[Math.round(Math.random() * (game.gifts_images.length - 1))])
+          //this.setSprite('cake')
           this.x = Math.random() * game.width_default;
           this.y = 0
           this.is_active = true;
@@ -749,7 +754,7 @@
     class Game {
       constructor() {
         this.live_counter_max = 10
-        this.live_counter_defult = 5
+        this.live_counter_defult = 9.5
         this.live_counter = this.live_counter_defult
         this.canvas = document.getElementsByTagName('canvas')[0];
         this.ctx = this.canvas.getContext('2d');
