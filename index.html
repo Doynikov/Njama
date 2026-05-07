@@ -211,13 +211,13 @@
         this.Jump()
       }
 
-      fall = () => {               
+      fall = () => {  
+        if (!this.is_active) return             
         if (this.center.x > rat.x && this.center.x < rat.right &&
           this.bottom > rat.y &&
           !rat.is_shlepok_rat) {
             rat.shlepokRat()
-        }
-        if (!this.is_active) return
+        }        
         this.is_fall = true
         this.jump_delay_counter = 0
         if (this.y < game.height_default - this.height) {
@@ -338,6 +338,10 @@
       }
 
       bangFlyLeft = () => {
+        if (this.is_fly_right) {
+          this.is_fly_left = false          
+          return
+        }
         if (this.x > 0) {
           game.soundPlay(1)
           this.is_active = false
@@ -366,6 +370,10 @@
       }
 
       bangFlyRight = () => {
+        if (this.is_fly_left) {
+          this.is_fly_right = false
+          return
+        }        
         if (this.right < game.width_default) {
           game.soundPlay(1)
           this.is_active = false
@@ -504,11 +512,11 @@
             && ((nyama.x - this.x) > -250 || nyama.bottom < game.height_default - 60) 
           ) {
             this.x += this.step_go;
-            if (this.right - nyama.x > 40 && this.right - nyama.x < 100 && nyama.bottom > game.height_default - 60) {
+            if (this.right - nyama.x > 40 && this.right - nyama.x < 100 && nyama.bottom >= game.height_default - 60) {
               this.is_eat = true
               return;
             }
-          } else if (nyama.right < this.x || !nyama.is_active) { 
+          } else if (nyama.right < this.x || !nyama.is_active || nyama.bottom < game.height_default - 60) { 
             this.direct = 'left'
             this.end_path = 0
             if ((this.x - this.end_path) < 100) { 
@@ -521,11 +529,11 @@
             && (this.x - nyama.right > -250 || nyama.bottom < game.height_default - 60)  
           ) {
             this.x -= this.step_go;
-            if (this.x - nyama.right < -40 && this.x - nyama.right > -100 && nyama.bottom > game.height_default - 60) {
+            if (this.x - nyama.right < -40 && this.x - nyama.right > -100 && nyama.bottom >= game.height_default - 60) {
               this.is_eat = true
               return;
             }
-          } else if (this.right < nyama.x || !nyama.is_active) { 
+          } else if (this.right < nyama.x || !nyama.is_active || nyama.bottom < game.height_default - 60) { 
             this.direct = 'right'
             this.end_path = game.width_default
             if ((this.end_path - this.x) < 100) {
@@ -572,7 +580,7 @@
       startNew() {
         setTimeout(() => {
           this.setSprite(game.gifts_images[Math.round(Math.random() * (game.gifts_images.length - 1))])
-          //this.setSprite('cake')
+          this.setSprite('bomb')
           this.x = Math.random() * game.width_default;
           this.y = 0
           this.is_active = true;
@@ -1040,7 +1048,7 @@
                 this.level = 2
                 this.gameInit()
                 this.is_game_stop = false
-                rat.x - 1500
+                rat.x - 1000
               }
               events.click = false;
             }
