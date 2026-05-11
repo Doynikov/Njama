@@ -1,10 +1,11 @@
 <html>
 
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta charset="utf-8">
   <style>
     body {
       background-color: black;
+		font-family: arial;
     }
 
     #canvas-wrapper {
@@ -683,7 +684,7 @@
         this.y = 0;
       }
       get width() {
-        game.ctx.font = this.size * game.ks + "px sans-serif"
+        game.ctx.font = this.size * game.ks + "px arial"
         return game.ctx.measureText(this.text).width;
       }
       get height() {
@@ -709,7 +710,7 @@
       drawGameWinButtons = () => {
         game.ctx.save();
         game.ctx.textAlign = "left"
-        game.ctx.font = this.size * game.ks + "px sans-serif"
+        game.ctx.font = this.size * game.ks + "px arial"
         button_out.x = (game.width - (this.width + button_out.width + 60)) / 2
         button_out.y = (game.height - this.height) / 2 + 120 * game.ks;
         game.ctx.fillStyle = "darkgreen"
@@ -728,7 +729,7 @@
       drawGameOverButtons = () => {
         game.ctx.save();
         game.ctx.textAlign = "left"
-        game.ctx.font = this.size * game.ks + "px sans-serif"
+        game.ctx.font = this.size * game.ks + "px arial"
         button_out.x = (game.width - (this.width + button_out.width + 60)) / 2
         button_out.y = (game.height - this.height) / 2 + 120 * game.ks;
         game.ctx.fillStyle = "darkgreen"
@@ -910,14 +911,14 @@
           this.ctx.lineWidth = 1
           this.ctx.fillStyle = 'red'
           this.ctx.strokeStyle = 'red'
-          this.ctx.font = (45 * this.ks) + 'px verdana';
+          this.ctx.font = (45 * this.ks) + 'px arial';
           this.ctx.fillText(s, 15 * this.ks, 50 * this.ks);
           if (!Number.isInteger(this.live_counter)) {
             s += '♥';
             this.ctx.strokeText(s, 15 * this.ks, 50 * this.ks);
           }
-          this.ctx.font = (17 * this.ks) + 'px verdana';
-          s = `LEVEL ${this.level}`;
+          this.ctx.font = (17 * this.ks) + 'px arial';
+	      s = `УРОВЕНЬ ${this.level}`;
           this.ctx.fillStyle = 'white'
           this.ctx.fillText(s, 15 * this.ks, 70 * this.ks);
           this.ctx.restore();
