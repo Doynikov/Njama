@@ -151,6 +151,7 @@
         this.is_bang = false;
         this.is_active = true;
         this.is_busy = false;       
+        this.is_poprug = false;
         this.jump_delay_counter = 0;
         this.eat_good_delay_counter = 0;
         this.eat_bad_delay_counter = 0;
@@ -160,6 +161,7 @@
         this.fly_counter = 0;
         this.fly_counter_max = 5;
         this.fall_delay_counter = 0;
+        this.poprug_delay_counter = 0;
       }
 
       moveLeft = () => {
@@ -216,7 +218,7 @@
         if (this.center.x > rat.x && this.center.x < rat.right &&
           this.bottom > rat.y &&
           !rat.is_shlepok_rat) {
-            rat.shlepokRat()
+            rat.shlepokRat()            
         }        
         this.is_fall = true
         this.jump_delay_counter = 0
@@ -238,6 +240,22 @@
           }
         }
       }
+
+      poprug_njama = () => {
+        //console.log('us')
+        this.poprug_delay_counter ++        
+        if (this.poprug_delay_counter < 20) {
+          this.y -= 15          
+        } else {
+          this.y += 15
+          if (this.poprug_delay_counter === 38 || this.bottom > game.height_default - 30) {
+            this.y = game.height_default - this.height - 30
+            this.poprug_delay_counter = 0
+          } 
+        }      
+        console.log(this.poprug_delay_counter, this.y)
+      }
+    
 
       update = () => {
         if (game.is_game_stop) return;
@@ -434,15 +452,20 @@
 
       shlepokRat = () => {        
         this.shlepok_counter++
+        nyama.is_active = false
         if (!this.is_shlepok_rat) {
+          this.poprug_delay_counter = 0
           this.is_shlepok_rat = true
           this.setSprite('rat_die')
-          this.is_active = false        
+          this.is_active = false                
         }
-        if (this.shlepok_counter === 60) {
+        nyama.poprug_njama()
+        if (this.shlepok_counter === 100) {
           this.is_shlepok_rat = false
           this.shlepok_counter = 0
           this.is_active = true
+          nyama.is_active = true
+          nyama.toBottomScreen()
           this.x = -1000
           this.setSprite('rat_image_l')
         }
@@ -580,7 +603,7 @@
       startNew() {
         setTimeout(() => {
           this.setSprite(game.gifts_images[Math.round(Math.random() * (game.gifts_images.length - 1))])
-          this.setSprite('bomb')
+          this.setSprite('cake')
           this.x = Math.random() * game.width_default;
           this.y = 0
           this.is_active = true;
